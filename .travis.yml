@@ -1,6 +1,6 @@
 env:
   global:
-    - CC_TEST_REPORTER_ID=077ec673019f45f4432cee02a6b808fca703aaac4745ec98755f1561e634cc43
+    - CC_TEST_REPORTER_ID=4fc98dcb9ebdf7add7dcc8bb2768af747f73ed27d69504951f93e69a1a95a035
 dist: bionic
 language: php
 php:

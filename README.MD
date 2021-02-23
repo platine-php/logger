@@ -7,8 +7,8 @@
 [![License](https://poser.pugx.org/platine-php/logger/license)](https://packagist.org/packages/platine-php/logger)
 [![Build Status](https://img.shields.io/travis/platine-php/logger/develop.svg?style=flat-square)](https://travis-ci.com/platine-php/logger)  
 [![Quality Score](https://img.shields.io/scrutinizer/g/platine-php/logger.svg?style=flat-square)](https://scrutinizer-ci.com/g/platine-php/logger)
-[![Maintainability](https://api.codeclimate.com/v1/badges/8c328e254185b0fd98ae/maintainability)](https://codeclimate.com/github/platine-php/logger/maintainability)
-[![Test Coverage](https://api.codeclimate.com/v1/badges/8c328e254185b0fd98ae/test_coverage)](https://codeclimate.com/github/platine-php/logger/test_coverage)
+[![Maintainability](https://api.codeclimate.com/v1/badges/ead7b1ada15711ef0b1e/maintainability)](https://codeclimate.com/github/platine-php/logger/maintainability)
+[![Test Coverage](https://api.codeclimate.com/v1/badges/ead7b1ada15711ef0b1e/test_coverage)](https://codeclimate.com/github/platine-php/logger/test_coverage)
 
 ### Requirements 
 - **PHP >= 7.4**, **PHP 8** 
