@@ -1,0 +1,66 @@
+{
+    "name": "platine-php/logger",
+    "description": "Platine Logger is the implementation of PSR 3",
+    "type": "library",
+    "license": "MIT",
+    "keywords": ["application", "website", "development", "framework", "php", "platine", "logger"],
+    "authors": [
+        {
+            "name": "NGUEREZA Tony",
+            "email": "nguerezatony@gmail.com",
+            "homepage": "http://www.iacademy.cf",
+            "role": "developer"
+        }
+    ],
+
+    "support": {
+        "issues": "https://github.com/platine-php/logger/issues",
+        "source": "https://github.com/platine-php/logger"
+    },
+	
+    "require": {
+        "php": "^7.4 || ^8"
+    },
+	
+    "require-dev": {
+        "mikey179/vfsstream": "~1.6",
+        "phpmd/phpmd": "@stable",
+        "phpunit/phpunit": "^9",
+        "platine-php/test-tools": "dev-develop",
+        "squizlabs/php_codesniffer": "3.*",
+        "vimeo/psalm": "4.x-dev"
+    },
+    
+    "autoload": {
+        "psr-4":{
+            "Platine\\Logger\\": "src/"
+        }
+    },
+    
+    "autoload-dev": {
+        "psr-4":{
+            "Platine\\Test\\": "tests"
+        },
+        "files": ["tests/fixtures/mocks.php"]
+    },
+    
+    "config": {
+        "sort-packages": true
+    },
+    
+    "extra": {
+        "branch-alias": {
+            "dev-develop": "1.0.x-dev"
+        }
+    },
+
+    "scripts": {
+        "test": "phpunit --colors=always",
+        "static": "psalm",
+        "check": "phpcs",
+        "check-fix": "phpcbf",
+        "analyze": "phpmd src xml phpmd.xml"
+    },
+	
+    "minimum-stability": "dev"
+}
