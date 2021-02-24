@@ -300,7 +300,7 @@ abstract class AbstractLogger implements LoggerInterface
             'code' => $exception->getCode(),
             'file' => $exception->getFile(),
             'line' => $exception->getLine(),
-            'trace' => $exception->getTrace()
+            'trace' => $exception->getTraceAsString()
         ];
     }
 
