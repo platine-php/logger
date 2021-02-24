@@ -259,9 +259,9 @@ abstract class AbstractLogger implements LoggerInterface
     {
         $exception = null;
         if (isset($context['exception']) && $context['exception'] instanceof \Throwable) {
-            $exception = json_encode(
+            $exception = print_r(
                 $this->getExceptionData($context['exception']),
-                \JSON_UNESCAPED_SLASHES
+                true
             );
             unset($context['exception']);
         }
