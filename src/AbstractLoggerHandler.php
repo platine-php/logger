@@ -29,9 +29,9 @@
  */
 
 /**
- *  @file AbstractLogger.php
+ *  @file AbstractLoggerHandler.php
  *
- *  The AbstractLogger class that all logger driver must extend it.
+ *  The AbstractLoggerHandler class that all logger handler must extend it.
  *
  *  @package    Platine\Logger
  *  @author Platine Developers Team
@@ -46,25 +46,24 @@ declare(strict_types=1);
 
 namespace Platine\Logger;
 
-abstract class AbstractLogger implements LoggerInterface
+use DateTime;
+use DateTimeImmutable;
+use DateTimeInterface;
+use Throwable;
+
+abstract class AbstractLoggerHandler implements LoggerHandlerInterface
 {
-
     /**
-     * Special minimum log level which will not log any log levels.
+     * All The handler configuration
+     * @var array<string, mixed>
      */
-    public const LOG_LEVEL_NONE = 'none';
+    protected array $config = [];
 
-    /**
+       /**
      * Channel used to identify each log message
      * @var string
      */
-    protected string $channel;
-
-    /**
-     * Lowest log level to log.
-     * @var int
-     */
-    protected int $logLevel;
+    protected string $channel = 'MAIN';
 
     /**
      * Whether to log to standard out.
@@ -79,57 +78,44 @@ abstract class AbstractLogger implements LoggerInterface
     protected string $tab = "\t";
 
     /**
-     * Log level hierachy
-     * @var array
-     */
-    protected array $levels = [
-        self::LOG_LEVEL_NONE => 999,
-        LogLevel::DEBUG => 0,
-        LogLevel::INFO => 1,
-        LogLevel::NOTICE => 2,
-        LogLevel::WARNING => 3,
-        LogLevel::ERROR => 4,
-        LogLevel::CRITICAL => 5,
-        LogLevel::ALERT => 6,
-        LogLevel::EMERGENCY => 7,
-    ];
-
-    /**
-     * Create new logger instance
+     * Create new logger handler instance
      *
-     * @param string $channel the channel to use
-     * @param string $logLevel the default log level
+     * @param array<string, mixed> $config
      */
-    public function __construct(
-        string $channel = '',
-        string $logLevel = LogLevel::DEBUG
-    ) {
-        $this->setLogLevel($logLevel);
-        $this->channel = $channel;
+    public function __construct(array $config = [])
+    {
+        $this->config = $config;
+
+        if (isset($config['channel'])) {
+            $this->channel = $config['channel'];
+        }
+
+        if (isset($config['stdout']) && is_bool($config['stdout'])) {
+            $this->stdout = $config['stdout'];
+        }
     }
 
     /**
-     * Set the minimum log level
+     * Set the handler configuration
      *
-     * @param string $logLevel
-     *
-     * @throws Exception
+     * @param array<string, mixed> $config
      *
      * @return self
      */
-    public function setLogLevel(string $logLevel): self
+    public function setConfig(array $config): self
     {
-        if (!array_key_exists($logLevel, $this->levels)) {
-            throw new \Exception(sprintf(
-                'Log level [%s] is not a valid log level. '
-                . 'Must be one of (%s)',
-                $logLevel,
-                implode(', ', array_keys($this->levels))
-            ));
-        }
-        $this->logLevel = $this->levels[$logLevel];
+        $this->config = $config;
 
         return $this;
+    }
+
+    /**
+     * Return the handler configuration
+     * @return array<string, mixed>
+     */
+    public function getConfig(): array
+    {
+        return $this->config;
     }
 
     /**
@@ -154,97 +140,22 @@ abstract class AbstractLogger implements LoggerInterface
      *
      * @return self
      */
-    public function setOutput(bool $stdout): self
+    public function setOutput(bool $stdout = true): self
     {
         $this->stdout = $stdout;
 
         return $this;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function emergency(string $message, array $context = []): void
-    {
-        if ($this->levelCanLog(LogLevel::EMERGENCY)) {
-            $this->log(LogLevel::EMERGENCY, $message, $context);
-        }
-    }
 
     /**
      * {@inheritdoc}
      */
-    public function alert(string $message, array $context = []): void
-    {
-        if ($this->levelCanLog(LogLevel::ALERT)) {
-            $this->log(LogLevel::ALERT, $message, $context);
-        }
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function critical(string $message, array $context = []): void
-    {
-        if ($this->levelCanLog(LogLevel::CRITICAL)) {
-            $this->log(LogLevel::CRITICAL, $message, $context);
-        }
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function error(string $message, array $context = []): void
-    {
-        if ($this->levelCanLog(LogLevel::ERROR)) {
-            $this->log(LogLevel::ERROR, $message, $context);
-        }
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function warning(string $message, array $context = []): void
-    {
-        if ($this->levelCanLog(LogLevel::WARNING)) {
-            $this->log(LogLevel::WARNING, $message, $context);
-        }
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function notice(string $message, array $context = []): void
-    {
-        if ($this->levelCanLog(LogLevel::NOTICE)) {
-            $this->log(LogLevel::NOTICE, $message, $context);
-        }
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function info(string $message, array $context = []): void
-    {
-        if ($this->levelCanLog(LogLevel::INFO)) {
-            $this->log(LogLevel::INFO, $message, $context);
-        }
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function debug(string $message, array $context = []): void
-    {
-        if ($this->levelCanLog(LogLevel::DEBUG)) {
-            $this->log(LogLevel::DEBUG, $message, $context);
-        }
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    abstract public function log($level, string $message, array $context = []): void;
+    abstract public function log(
+        $level,
+        string $message,
+        array $context = []
+    ): void;
 
     /**
      * Format the log line.
@@ -252,13 +163,13 @@ abstract class AbstractLogger implements LoggerInterface
      *  Log message content  {"Optional":"Exception Data"}
      * @param  string $level
      * @param  string $message
-     * @param  array  $context
+     * @param  array<string, mixed>  $context
      * @return string
      */
     protected function format(string $level, string $message, array $context): string
     {
         $exception = null;
-        if (isset($context['exception']) && $context['exception'] instanceof \Throwable) {
+        if (isset($context['exception']) && $context['exception'] instanceof Throwable) {
             $exception = print_r(
                 $this->getExceptionData($context['exception']),
                 true
@@ -279,21 +190,11 @@ abstract class AbstractLogger implements LoggerInterface
     }
 
     /**
-     * Determine if the logger should log at a certain log level.
-     * @param  string    $level log level to check
-     * @return bool
-     */
-    protected function levelCanLog(string $level): bool
-    {
-        return $this->levels[$level] >= $this->logLevel;
-    }
-
-    /**
      * Get Exception information data
-     * @param  \Throwable $exception
-     * @return array        the exception data
+     * @param  Throwable $exception
+     * @return array<string, mixed>        the exception data
      */
-    protected function getExceptionData(\Throwable $exception): array
+    protected function getExceptionData(Throwable $exception): array
     {
         return [
             'message' => $exception->getMessage(),
@@ -307,7 +208,7 @@ abstract class AbstractLogger implements LoggerInterface
     /**
      * Interpolates context values into the message placeholders.
      * @param  string $message
-     * @param  array  $context
+     * @param  array<string, mixed>  $context
      * @return string
      */
     protected function interpolate(string $message, array $context): string
@@ -324,8 +225,8 @@ abstract class AbstractLogger implements LoggerInterface
                 && method_exists($value, '__toString'))
             ) {
                 $replacements['{' . $key . '}'] = $value;
-            } elseif ($value instanceof \DateTimeInterface) {
-                $replacements['{' . $key . '}'] = $value->format(\DateTime::RFC3339);
+            } elseif ($value instanceof DateTimeInterface) {
+                $replacements['{' . $key . '}'] = $value->format(DateTime::RFC3339);
             } elseif (is_object($value)) {
                 $replacements['{' . $key . '}'] = '[object ' . get_class($value) . ']';
             } else {
@@ -344,6 +245,6 @@ abstract class AbstractLogger implements LoggerInterface
      */
     protected function getLogTime(): string
     {
-        return (new \DateTimeImmutable('now'))->format('Y-m-d H:i:s.u');
+        return (new DateTimeImmutable('now'))->format('Y-m-d H:i:s.u');
     }
 }

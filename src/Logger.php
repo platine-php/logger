@@ -31,7 +31,7 @@
 /**
  *  @file Logger.php
  *
- *  The Logger class
+ *  The Logger class is the main class to use to handle application log.
  *
  *  @package    Platine\Logger
  *  @author Platine Developers Team
@@ -46,29 +46,213 @@ declare(strict_types=1);
 
 namespace Platine\Logger;
 
-class Logger
+use Exception;
+
+class Logger implements LoggerInterface
 {
 
     /**
-     * The logger driver to use
-     * @var LoggerInterface
+     * Special minimum log level which will not log any log levels.
      */
-    protected LoggerInterface $handler;
+    public const LOG_LEVEL_NONE = 'none';
 
     /**
-     * Create new logger
-     * @param LoggerInterface $handler the logger driver to use
+     * The logger handler to use
+     * @var AbstractLoggerHandler
      */
-    public function __construct(LoggerInterface $handler)
-    {
-        $this->handler = $handler;
+    protected AbstractLoggerHandler $handler;
+
+    /**
+     * Log level hierarchy
+     * @var array<string, int>
+     */
+    protected array $levels = [
+        self::LOG_LEVEL_NONE => 999,
+        LogLevel::DEBUG => 0,
+        LogLevel::INFO => 1,
+        LogLevel::NOTICE => 2,
+        LogLevel::WARNING => 3,
+        LogLevel::ERROR => 4,
+        LogLevel::CRITICAL => 5,
+        LogLevel::ALERT => 6,
+        LogLevel::EMERGENCY => 7,
+    ];
+
+    /**
+     * Lowest log level to log.
+     * @var int
+     */
+    protected int $logLevel;
+
+    /**
+     * Create new logger instance
+     *
+     * @param AbstractLoggerHandler|null $handler the logger handler to use
+     * @param string $logLevel the default log level
+     */
+    public function __construct(
+        ?AbstractLoggerHandler $handler = null,
+        string $logLevel = LogLevel::DEBUG
+    ) {
+        $this->handler = $handler ? $handler : new NullHandler();
+        $this->setLevel($logLevel);
     }
 
     /**
-     * Any method call will call handler methods
+     * Return the handler instance
+     * @return AbstractLoggerHandler
      */
-    public function __call(string $method, array $args = []): void
+    public function getHandler(): AbstractLoggerHandler
     {
-        $this->handler->{$method}(...$args);
+        return $this->handler;
+    }
+
+    /**
+     * Set the minimum log level
+     *
+     * @param string $logLevel
+     *
+     * @throws Exception
+     *
+     * @return self
+     */
+    public function setLevel(string $logLevel): self
+    {
+        if (!array_key_exists($logLevel, $this->levels)) {
+            throw new Exception(sprintf(
+                'Log level [%s] is not a valid log level. '
+                . 'Must be one of (%s)',
+                $logLevel,
+                implode(', ', array_keys($this->levels))
+            ));
+        }
+        $this->logLevel = $this->levels[$logLevel];
+
+        return $this;
+    }
+
+    /**
+     * {@inheritdoc}
+     *
+     * @see AbstractLoggerHandler::setChannel
+     *
+     * @return self
+     */
+    public function setChannel(string $channel): self
+    {
+        $this->handler->setChannel($channel);
+
+        return $this;
+    }
+
+    /**
+     * {@inheritdoc}
+     * @see AbstractLoggerHandler::setOutput
+     *
+     * @return self
+     */
+    public function setOutput(bool $stdout): self
+    {
+        $this->handler->setOutput($stdout);
+
+        return $this;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function emergency(string $message, array $context = []): void
+    {
+        if ($this->levelCanLog(LogLevel::EMERGENCY)) {
+            $this->log(LogLevel::EMERGENCY, $message, $context);
+        }
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function alert(string $message, array $context = []): void
+    {
+        if ($this->levelCanLog(LogLevel::ALERT)) {
+            $this->log(LogLevel::ALERT, $message, $context);
+        }
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function critical(string $message, array $context = []): void
+    {
+        if ($this->levelCanLog(LogLevel::CRITICAL)) {
+            $this->log(LogLevel::CRITICAL, $message, $context);
+        }
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function error(string $message, array $context = []): void
+    {
+        if ($this->levelCanLog(LogLevel::ERROR)) {
+            $this->log(LogLevel::ERROR, $message, $context);
+        }
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function warning(string $message, array $context = []): void
+    {
+        if ($this->levelCanLog(LogLevel::WARNING)) {
+            $this->log(LogLevel::WARNING, $message, $context);
+        }
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function notice(string $message, array $context = []): void
+    {
+        if ($this->levelCanLog(LogLevel::NOTICE)) {
+            $this->log(LogLevel::NOTICE, $message, $context);
+        }
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function info(string $message, array $context = []): void
+    {
+        if ($this->levelCanLog(LogLevel::INFO)) {
+            $this->log(LogLevel::INFO, $message, $context);
+        }
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function debug(string $message, array $context = []): void
+    {
+        if ($this->levelCanLog(LogLevel::DEBUG)) {
+            $this->log(LogLevel::DEBUG, $message, $context);
+        }
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function log($level, string $message, array $context = []): void
+    {
+        $this->handler->log($level, $message, $context);
+    }
+
+    /**
+     * Determine if the logger should log at a certain log level.
+     * @param  string    $level log level to check
+     * @return bool
+     */
+    protected function levelCanLog(string $level): bool
+    {
+        return $this->levels[$level] >= $this->logLevel;
     }
 }

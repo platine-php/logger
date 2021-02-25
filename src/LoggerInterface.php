@@ -53,7 +53,7 @@ interface LoggerInterface
      * System is unusable.
      *
      * @param string  $message
-     * @param array $context
+     * @param array<string, mixed> $context
      *
      * @return void
      */
@@ -66,7 +66,7 @@ interface LoggerInterface
      * trigger the SMS alerts and wake you up.
      *
      * @param string  $message
-     * @param array $context
+     * @param array<string, mixed> $context
      *
      * @return void
      */
@@ -78,7 +78,7 @@ interface LoggerInterface
      * Example: Application component unavailable, unexpected exception.
      *
      * @param string  $message
-     * @param array $context
+     * @param array<string, mixed> $context
      *
      * @return void
      */
@@ -89,7 +89,7 @@ interface LoggerInterface
      * be logged and monitored.
      *
      * @param string  $message
-     * @param array $context
+     * @param array<string, mixed> $context
      *
      * @return void
      */
@@ -102,7 +102,7 @@ interface LoggerInterface
      * that are not necessarily wrong.
      *
      * @param string  $message
-     * @param array $context
+     * @param array<string, mixed> $context
      *
      * @return void
      */
@@ -112,7 +112,7 @@ interface LoggerInterface
      * Normal but significant events.
      *
      * @param string  $message
-     * @param array $context
+     * @param array<string, mixed> $context
      *
      * @return void
      */
@@ -124,7 +124,7 @@ interface LoggerInterface
      * Example: User logs in, SQL logs.
      *
      * @param string  $message
-     * @param array $context
+     * @param array<string, mixed> $context
      *
      * @return void
      */
@@ -134,7 +134,7 @@ interface LoggerInterface
      * Detailed debug information.
      *
      * @param string  $message
-     * @param array $context
+     * @param array<string, mixed> $context
      *
      * @return void
      */
@@ -145,7 +145,7 @@ interface LoggerInterface
      *
      * @param mixed   $level
      * @param string  $message
-     * @param array $context
+     * @param array<string, mixed> $context
      *
      * @return void
      *

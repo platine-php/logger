@@ -29,9 +29,9 @@
  */
 
 /**
- *  @file FileLogger.php
+ *  @file FileHandler.php
  *
- *  The File Logger driver class
+ *  The File Logger handler class
  *
  *  @package    Platine\Logger
  *  @author Platine Developers Team
@@ -46,7 +46,11 @@ declare(strict_types=1);
 
 namespace Platine\Logger;
 
-class FileLogger extends AbstractLogger
+use Exception;
+use RuntimeException;
+use Throwable;
+
+class FileHandler extends AbstractLoggerHandler
 {
 
     /**
@@ -55,12 +59,19 @@ class FileLogger extends AbstractLogger
      */
     protected string $logPath;
 
+    /**
+     * Create new File Handler
+     * {@inheritdoc}
+     */
     public function __construct(
-        string $logPath = '',
-        string $channel = 'MAIN',
-        string $logLevel = LogLevel::DEBUG
+        array $config = []
     ) {
-        parent::__construct($channel, $logLevel);
+        parent::__construct($config);
+
+        $logPath = sys_get_temp_dir();
+        if (isset($config['log_path'])) {
+            $logPath = $config['log_path'];
+        }
         $this->logPath = rtrim($logPath, '/\\') . DIRECTORY_SEPARATOR;
     }
 
@@ -82,12 +93,9 @@ class FileLogger extends AbstractLogger
      */
     public function log($level, string $message, array $context = []): void
     {
-        if (!is_dir($this->logPath) || !is_writable($this->logPath)) {
-            throw new \Exception(sprintf(
-                'The log directory [%s] does not exist or is not writable',
-                $this->logPath
-            ));
-        }
+        //Check the log directory
+        $this->checkLogDir();
+
         $logFilePath = $this->logPath . 'logs-' . date('Y-m-d') . '.log';
         $logLine = $this->format($level, $message, $context);
 
@@ -97,8 +105,8 @@ class FileLogger extends AbstractLogger
             flock($handler, LOCK_EX);
             fwrite($handler, $logLine);
             fclose($handler);
-        } catch (\Throwable $e) {
-            throw new \RuntimeException(sprintf(
+        } catch (Throwable $e) {
+            throw new RuntimeException(sprintf(
                 'Could not open log file [%s] for writing to channel [%s].',
                 $logFilePath,
                 $this->channel
@@ -108,6 +116,20 @@ class FileLogger extends AbstractLogger
         // Log to stdout if option set to do so.
         if ($this->stdout) {
             print($logLine);
+        }
+    }
+
+    /**
+     * Check if log directory is valid (exists and writable)
+     * @return void
+     */
+    protected function checkLogDir(): void
+    {
+        if (!is_dir($this->logPath) || !is_writable($this->logPath)) {
+            throw new Exception(sprintf(
+                'The log directory [%s] does not exist or is not writable',
+                $this->logPath
+            ));
         }
     }
 }

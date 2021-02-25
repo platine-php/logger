@@ -29,9 +29,9 @@
  */
 
 /**
- *  @file DummyLogger.php
+ *  @file LoggerHandlerInterface.php
  *
- *  The Dummy Logger driver class
+ *  The Logger interface
  *
  *  @package    Platine\Logger
  *  @author Platine Developers Team
@@ -46,19 +46,17 @@ declare(strict_types=1);
 
 namespace Platine\Logger;
 
-class NullLogger extends AbstractLogger
+interface LoggerHandlerInterface
 {
-
-    public function __construct(string $channel = 'MAIN', string $logLevel = LogLevel::DEBUG)
-    {
-        parent::__construct($channel, $logLevel);
-    }
-
     /**
-     * {@inheritdoc}
+     * Logs with an arbitrary level.
+     *
+     * @param mixed   $level
+     * @param string  $message
+     * @param array<string, mixed> $context
+     *
+     * @return void
+     *
      */
-    public function log($level, string $message, array $context = []): void
-    {
-        //do nothing
-    }
+    public function log($level, string $message, array $context = []): void;
 }
