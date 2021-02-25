@@ -19,7 +19,7 @@
 composer require platine-php/logger
 ```
 
-### Supported drivers 
+### Supported handlers 
 - **File**
 - **Null**
 
