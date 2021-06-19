@@ -29,11 +29,11 @@
  */
 
 /**
- *  @file LoggerHandlerInterface.php
+ *  @file NullHandler.php
  *
- *  The Logger handler interface
+ *  The Null Logger handler class
  *
- *  @package    Platine\Logger
+ *  @package    Platine\Logger\Handler
  *  @author Platine Developers Team
  *  @copyright  Copyright (c) 2020
  *  @license    http://opensource.org/licenses/MIT  MIT License
@@ -44,38 +44,27 @@
 
 declare(strict_types=1);
 
-namespace Platine\Logger;
+namespace Platine\Logger\Handler;
+
+use Platine\Logger\LoggerFormatterInterface;
 
 /**
- * Class LoggerHandlerInterface
- * @package Platine\Logger
+ * Class NullHandler
+ * @package Platine\Logger\Handler
  */
-interface LoggerHandlerInterface
+class NullHandler extends AbstractLoggerHandler
 {
 
     /**
-     * Create new instance
-     * @param Configuration $config
-     */
-    public function __construct(Configuration $config);
-
-    /**
-     * Logs with an arbitrary level.
-     *
-     * @param string   $level
-     * @param string  $message
-     * @param string  $channel
-     * @param LoggerFormatterInterface  $formatter
-     * @param array<string, mixed> $context
-     *
-     * @return void
-     *
+     * {@inheritdoc}
      */
     public function log(
-        string $level,
+        $level,
         string $message,
         string $channel,
         LoggerFormatterInterface $formatter,
         array $context = []
-    ): void;
+    ): void {
+        //do nothing
+    }
 }

@@ -29,9 +29,9 @@
  */
 
 /**
- *  @file LoggerHandlerInterface.php
+ *  @file Configuration.php
  *
- *  The Logger handler interface
+ *  The Logger Configuration class.
  *
  *  @package    Platine\Logger
  *  @author Platine Developers Team
@@ -46,36 +46,69 @@ declare(strict_types=1);
 
 namespace Platine\Logger;
 
+use Platine\Stdlib\Config\AbstractConfiguration;
+
 /**
- * Class LoggerHandlerInterface
+ * Class Configuration
  * @package Platine\Logger
  */
-interface LoggerHandlerInterface
+class Configuration extends AbstractConfiguration
 {
 
     /**
-     * Create new instance
-     * @param Configuration $config
+     * The default log level to use
+     * @var string
      */
-    public function __construct(Configuration $config);
+    protected string $level = LogLevel::DEBUG;
 
     /**
-     * Logs with an arbitrary level.
-     *
-     * @param string   $level
-     * @param string  $message
-     * @param string  $channel
-     * @param LoggerFormatterInterface  $formatter
-     * @param array<string, mixed> $context
-     *
-     * @return void
-     *
+     * The path to use to save log files
+     * @var string
      */
-    public function log(
-        string $level,
-        string $message,
-        string $channel,
-        LoggerFormatterInterface $formatter,
-        array $context = []
-    ): void;
+    protected string $filePath = '.';
+
+    /**
+     * The log file prefix
+     * @var string
+     */
+    protected string $filePrefix = 'log-';
+
+    /**
+     * Return the file storage path
+     * @return string
+     */
+    public function getFilePath(): string
+    {
+        return $this->filePath;
+    }
+
+    /**
+     * Return the log file prefix
+     * @return string
+     */
+    public function getFilePrefix(): string
+    {
+        return $this->filePrefix;
+    }
+
+    /**
+     * Return the log level
+     * @return string
+     */
+    public function getLevel(): string
+    {
+        return $this->level;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getValidationRules(): array
+    {
+        return [
+            'filePath' => 'string',
+            'filePrefix' => 'string',
+            'level' => 'string',
+        ];
+    }
 }

@@ -33,7 +33,7 @@
  *
  *  The File Logger handler class
  *
- *  @package    Platine\Logger
+ *  @package    Platine\Logger\Handler
  *  @author Platine Developers Team
  *  @copyright  Copyright (c) 2020
  *  @license    http://opensource.org/licenses/MIT  MIT License
@@ -44,12 +44,20 @@
 
 declare(strict_types=1);
 
-namespace Platine\Logger;
+namespace Platine\Logger\Handler;
 
 use Exception;
+use Platine\Logger\Configuration;
+use Platine\Logger\LoggerFormatterInterface;
+use Platine\Stdlib\Helper\Path;
 use RuntimeException;
 use Throwable;
+use function Platine\Logger\fopen;
 
+/**
+ * Class FileHandler
+ * @package Platine\Logger\Handler
+ */
 class FileHandler extends AbstractLoggerHandler
 {
 
@@ -63,41 +71,33 @@ class FileHandler extends AbstractLoggerHandler
      * Create new File Handler
      * {@inheritdoc}
      */
-    public function __construct(
-        array $config = []
-    ) {
-        parent::__construct($config);
-
-        $logPath = sys_get_temp_dir();
-        if (isset($config['log_path'])) {
-            $logPath = $config['log_path'];
-        }
-        $this->logPath = rtrim($logPath, '/\\') . DIRECTORY_SEPARATOR;
-    }
-
-    /**
-     * Set log directory path
-     * @param string $logPath
-     *
-     * @return self
-     */
-    public function setLogPath(string $logPath): self
+    public function __construct(Configuration $config)
     {
-        $this->logPath = rtrim($logPath, '/\\') . DIRECTORY_SEPARATOR;
-
-        return $this;
+        parent::__construct($config);
+        $this->logPath = Path::normalizePathDS(
+            $config->getFilePath(),
+            true
+        );
     }
 
     /**
      * {@inheritdoc}
      */
-    public function log($level, string $message, array $context = []): void
-    {
+    public function log(
+        $level,
+        string $message,
+        string $channel,
+        LoggerFormatterInterface $formatter,
+        array $context = []
+    ): void {
         //Check the log directory
         $this->checkLogDir();
 
-        $logFilePath = $this->logPath . 'logs-' . date('Y-m-d') . '.log';
-        $logLine = $this->format($level, $message, $context);
+        $logFilePath = $this->logPath .
+                       $this->config->getFilePrefix()
+                       . date('Y-m-d') . '.log';
+
+        $logLine = $formatter->format($level, $message, $context, $channel);
 
         try {
             $handler = fopen($logFilePath, 'a+');
@@ -105,17 +105,16 @@ class FileHandler extends AbstractLoggerHandler
             flock($handler, LOCK_EX);
             fwrite($handler, $logLine);
             fclose($handler);
-        } catch (Throwable $e) {
-            throw new RuntimeException(sprintf(
-                'Could not open log file [%s] for writing to channel [%s].',
-                $logFilePath,
-                $this->channel
-            ));
-        }
-
-        // Log to stdout if option set to do so.
-        if ($this->stdout) {
-            print($logLine);
+        } catch (Throwable $exception) {
+            throw new RuntimeException(
+                sprintf(
+                    'Could not open log file [%s] for writing to channel [%s].',
+                    $logFilePath,
+                    $channel
+                ),
+                0,
+                $exception->getPrevious()
+            );
         }
     }
 

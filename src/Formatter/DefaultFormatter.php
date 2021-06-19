@@ -29,11 +29,11 @@
  */
 
 /**
- *  @file LoggerHandlerInterface.php
+ *  @file DefaultFormatter.php
  *
- *  The Logger handler interface
+ *  The default logger formatter class
  *
- *  @package    Platine\Logger
+ *  @package    Platine\Logger\Formatter
  *  @author Platine Developers Team
  *  @copyright  Copyright (c) 2020
  *  @license    http://opensource.org/licenses/MIT  MIT License
@@ -44,38 +44,48 @@
 
 declare(strict_types=1);
 
-namespace Platine\Logger;
+namespace Platine\Logger\Formatter;
+
+use Throwable;
 
 /**
- * Class LoggerHandlerInterface
- * @package Platine\Logger
+ * Class DefaultFormatter
+ * @package Platine\Logger\Formatter
  */
-interface LoggerHandlerInterface
+class DefaultFormatter extends AbstractFormatter
 {
 
     /**
-     * Create new instance
-     * @param Configuration $config
+     * {@inheritdoc}
+     * YYYY-mm-dd HH:ii:ss.micro  [log level]  [channel]  [pid:##]
+     *  Log message content  {"Optional":"Exception Data"}
      */
-    public function __construct(Configuration $config);
-
-    /**
-     * Logs with an arbitrary level.
-     *
-     * @param string   $level
-     * @param string  $message
-     * @param string  $channel
-     * @param LoggerFormatterInterface  $formatter
-     * @param array<string, mixed> $context
-     *
-     * @return void
-     *
-     */
-    public function log(
+    public function format(
         string $level,
         string $message,
-        string $channel,
-        LoggerFormatterInterface $formatter,
-        array $context = []
-    ): void;
+        array $context,
+        string $channel
+    ): string {
+        $exception = null;
+        if (isset($context['exception']) && $context['exception'] instanceof Throwable) {
+            $exception = (string) print_r(
+                $this->getExceptionData($context['exception']),
+                true
+            );
+            unset($context['exception']);
+        }
+
+        $msg = $this->interpolate($message, $context);
+        $logLevel = strtoupper($level);
+        $pid = getmygid();
+
+        return
+                $this->getLogTime() . $this->tab .
+                '[' . $logLevel . ']' . $this->tab .
+                '[' . $channel . ']' . $this->tab .
+                '[pid:' . $pid . ']' . $this->tab .
+                str_replace(PHP_EOL, '   ', trim($msg)) .
+                ($exception ? ' ' . str_replace(PHP_EOL, '   ', $exception) : '')
+                    . PHP_EOL;
+    }
 }

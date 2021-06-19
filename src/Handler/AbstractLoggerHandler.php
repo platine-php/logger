@@ -29,11 +29,11 @@
  */
 
 /**
- *  @file LoggerHandlerInterface.php
+ *  @file AbstractLoggerHandler.php
  *
- *  The Logger handler interface
+ *  The base class for logger handler.
  *
- *  @package    Platine\Logger
+ *  @package    Platine\Logger\Handler
  *  @author Platine Developers Team
  *  @copyright  Copyright (c) 2020
  *  @license    http://opensource.org/licenses/MIT  MIT License
@@ -44,38 +44,29 @@
 
 declare(strict_types=1);
 
-namespace Platine\Logger;
+namespace Platine\Logger\Handler;
+
+use Platine\Logger\Configuration;
+use Platine\Logger\LoggerHandlerInterface;
 
 /**
- * Class LoggerHandlerInterface
- * @package Platine\Logger
+ * Class AbstractLoggerHandler
+ * @package Platine\Logger\Handler
  */
-interface LoggerHandlerInterface
+abstract class AbstractLoggerHandler implements LoggerHandlerInterface
 {
 
     /**
-     * Create new instance
-     * @param Configuration $config
+     * The configuration to use
+     * @var Configuration
      */
-    public function __construct(Configuration $config);
+    protected Configuration $config;
 
     /**
-     * Logs with an arbitrary level.
-     *
-     * @param string   $level
-     * @param string  $message
-     * @param string  $channel
-     * @param LoggerFormatterInterface  $formatter
-     * @param array<string, mixed> $context
-     *
-     * @return void
-     *
+     * {@inheritdoc}
      */
-    public function log(
-        string $level,
-        string $message,
-        string $channel,
-        LoggerFormatterInterface $formatter,
-        array $context = []
-    ): void;
+    public function __construct(Configuration $config)
+    {
+        $this->config = $config;
+    }
 }

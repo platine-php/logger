@@ -29,11 +29,11 @@
  */
 
 /**
- *  @file AbstractLoggerHandler.php
+ *  @file AbstractFormatter.php
  *
- *  The AbstractLoggerHandler class that all logger handler must extend it.
+ *  The base logger formatter class
  *
- *  @package    Platine\Logger
+ *  @package    Platine\Logger\Formatter
  *  @author Platine Developers Team
  *  @copyright  Copyright (c) 2020
  *  @license    http://opensource.org/licenses/MIT  MIT License
@@ -44,150 +44,25 @@
 
 declare(strict_types=1);
 
-namespace Platine\Logger;
+namespace Platine\Logger\Formatter;
 
 use DateTime;
 use DateTimeImmutable;
 use DateTimeInterface;
+use Platine\Logger\LoggerFormatterInterface;
 use Throwable;
 
-abstract class AbstractLoggerHandler implements LoggerHandlerInterface
+/**
+ * Class AbstractFormatter
+ * @package Platine\Logger\Formatter
+ */
+abstract class AbstractFormatter implements LoggerFormatterInterface
 {
-    /**
-     * All The handler configuration
-     * @var array<string, mixed>
-     */
-    protected array $config = [];
-
-       /**
-     * Channel used to identify each log message
-     * @var string
-     */
-    protected string $channel = 'MAIN';
-
-    /**
-     * Whether to log to standard out.
-     * @var boolean
-     */
-    protected bool $stdout = false;
-
     /**
      * Log fields separated by tabs to form a TSV (CSV with tabs).
      * @var string
      */
     protected string $tab = "\t";
-
-    /**
-     * Create new logger handler instance
-     *
-     * @param array<string, mixed> $config
-     */
-    public function __construct(array $config = [])
-    {
-        $this->config = $config;
-
-        if (isset($config['channel'])) {
-            $this->channel = $config['channel'];
-        }
-
-        if (isset($config['stdout']) && is_bool($config['stdout'])) {
-            $this->stdout = $config['stdout'];
-        }
-    }
-
-    /**
-     * Set the handler configuration
-     *
-     * @param array<string, mixed> $config
-     *
-     * @return self
-     */
-    public function setConfig(array $config): self
-    {
-        $this->config = $config;
-
-        return $this;
-    }
-
-    /**
-     * Return the handler configuration
-     * @return array<string, mixed>
-     */
-    public function getConfig(): array
-    {
-        return $this->config;
-    }
-
-    /**
-     * Set log channel
-     *
-     * @param string $channel
-     *
-     * @return self
-     */
-    public function setChannel(string $channel): self
-    {
-        $this->channel = $channel;
-
-        return $this;
-    }
-
-    /**
-     * Set the standard out option on or off.
-     * If set to true, log lines will also be printed to standard out.
-     *
-     * @param bool $stdout
-     *
-     * @return self
-     */
-    public function setOutput(bool $stdout = true): self
-    {
-        $this->stdout = $stdout;
-
-        return $this;
-    }
-
-
-    /**
-     * {@inheritdoc}
-     */
-    abstract public function log(
-        $level,
-        string $message,
-        array $context = []
-    ): void;
-
-    /**
-     * Format the log line.
-     * YYYY-mm-dd HH:ii:ss.uuuuuu  [loglevel]  [channel]  [pid:##]
-     *  Log message content  {"Optional":"Exception Data"}
-     * @param  string $level
-     * @param  string $message
-     * @param  array<string, mixed>  $context
-     * @return string
-     */
-    protected function format(string $level, string $message, array $context): string
-    {
-        $exception = null;
-        if (isset($context['exception']) && $context['exception'] instanceof Throwable) {
-            $exception = print_r(
-                $this->getExceptionData($context['exception']),
-                true
-            );
-            unset($context['exception']);
-        }
-        $message = $this->interpolate($message, $context);
-        $level = strtoupper($level);
-        $pid = getmygid();
-        return
-                $this->getLogTime() . $this->tab .
-                '[' . $level . ']' . $this->tab .
-                '[' . $this->channel . ']' . $this->tab .
-                '[pid:' . $pid . ']' . $this->tab .
-                str_replace(\PHP_EOL, '   ', trim($message)) .
-                ($exception ? ' ' . str_replace(\PHP_EOL, '   ', $exception) : '')
-                    . \PHP_EOL;
-    }
 
     /**
      * Get Exception information data
@@ -196,13 +71,31 @@ abstract class AbstractLoggerHandler implements LoggerHandlerInterface
      */
     protected function getExceptionData(Throwable $exception): array
     {
-        return [
+        $data = [
             'message' => $exception->getMessage(),
             'code' => $exception->getCode(),
             'file' => $exception->getFile(),
-            'line' => $exception->getLine(),
-            'trace' => $exception->getTraceAsString()
+            'line' => $exception->getLine()
         ];
+
+        $traces = $exception->getTrace();
+        $traceStr = "\n";
+        foreach ($traces as $i => $trace) {
+            $traceStr .= sprintf(
+                '%d. %s:%s%s%s(%s)::%d',
+                $i + 1,
+                $trace['file'],
+                $trace['class'] ?? '',
+                $trace['type'] ?? '',
+                $trace['function'],
+                isset($trace['args']) ? '...' : '',
+                $trace['line']
+            ) . "\n";
+        }
+
+        $data['trace'] = $traceStr;
+
+        return $data;
     }
 
     /**
@@ -216,6 +109,7 @@ abstract class AbstractLoggerHandler implements LoggerHandlerInterface
         if (strpos($message, '{') === false) {
             return $message;
         }
+
         $replacements = [];
         foreach ($context as $key => $value) {
             if (
@@ -233,6 +127,7 @@ abstract class AbstractLoggerHandler implements LoggerHandlerInterface
                 $replacements['{' . $key . '}'] = '[' . gettype($value) . ']';
             }
         }
+
         return strtr($message, $replacements);
     }
 

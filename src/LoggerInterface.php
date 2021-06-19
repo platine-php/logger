@@ -85,7 +85,7 @@ interface LoggerInterface
     public function critical(string $message, array $context = []): void;
 
     /**
-     * Runtime errors that do not require immediate action but should typically
+     * Run time errors that do not require immediate action but should typically
      * be logged and monitored.
      *
      * @param string  $message
@@ -143,12 +143,12 @@ interface LoggerInterface
     /**
      * Logs with an arbitrary level.
      *
-     * @param mixed   $level
+     * @param string   $level
      * @param string  $message
      * @param array<string, mixed> $context
      *
      * @return void
      *
      */
-    public function log($level, string $message, array $context = []): void;
+    public function log(string $level, string $message, array $context = []): void;
 }

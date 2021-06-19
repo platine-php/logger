@@ -46,9 +46,12 @@ declare(strict_types=1);
 
 namespace Platine\Logger;
 
+/**
+ * Class LogLevel
+ * @package Platine\Logger
+ */
 class LogLevel
 {
-
     public const EMERGENCY = 'emergency';
     public const ALERT = 'alert';
     public const CRITICAL = 'critical';

@@ -3,4 +3,5 @@ parameters:
     paths:
         - src
     parallel:
+        jobSize: 50
         maximumNumberOfProcesses: 4

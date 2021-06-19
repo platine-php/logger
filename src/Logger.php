@@ -47,7 +47,13 @@ declare(strict_types=1);
 namespace Platine\Logger;
 
 use Exception;
+use Platine\Logger\Formatter\DefaultFormatter;
+use Platine\Logger\Handler\FileHandler;
 
+/**
+ * Class Logger
+ * @package Platine\Logger
+ */
 class Logger implements LoggerInterface
 {
 
@@ -57,10 +63,10 @@ class Logger implements LoggerInterface
     public const LOG_LEVEL_NONE = 'none';
 
     /**
-     * The logger handler to use
-     * @var AbstractLoggerHandler
+     * The list of logger handler
+     * @var LoggerHandlerInterface[]
      */
-    protected AbstractLoggerHandler $handler;
+    protected array $handlers = [];
 
     /**
      * Log level hierarchy
@@ -85,26 +91,81 @@ class Logger implements LoggerInterface
     protected int $logLevel;
 
     /**
+     * Channel used to identify each log message
+     * @var string
+     */
+    protected string $channel = 'MAIN';
+
+    /**
+     * The configuration to use
+     * @var Configuration
+     */
+    protected Configuration $config;
+
+    /**
+     * Logger formatter to be used
+     * @var LoggerFormatterInterface
+     */
+    protected LoggerFormatterInterface $formatter;
+
+    /**
      * Create new logger instance
      *
-     * @param AbstractLoggerHandler|null $handler the logger handler to use
-     * @param string $logLevel the default log level
+     * @param Configuration $config the configuration to use
+     * @param LoggerFormatterInterface|null $formatter the formatter to use
      */
     public function __construct(
-        ?AbstractLoggerHandler $handler = null,
-        string $logLevel = LogLevel::DEBUG
+        Configuration $config,
+        ?LoggerFormatterInterface $formatter = null
     ) {
-        $this->handler = $handler ? $handler : new NullHandler();
-        $this->setLevel($logLevel);
+        $this->config = $config;
+        $this->formatter = $formatter ?? new DefaultFormatter();
+        $this->setLevel($config->getLevel());
+
+        $this->addHandler(new FileHandler($config));
     }
 
     /**
-     * Return the handler instance
-     * @return AbstractLoggerHandler
+     * Return the logger formatter
+     * @return LoggerFormatterInterface
      */
-    public function getHandler(): AbstractLoggerHandler
+    public function getFormatter(): LoggerFormatterInterface
     {
-        return $this->handler;
+        return $this->formatter;
+    }
+
+    /**
+     * Set logger formatter for future use
+     * @param LoggerFormatterInterface $formatter
+     * @return $this
+     */
+    public function setFormatter(LoggerFormatterInterface $formatter): self
+    {
+        $this->formatter = $formatter;
+
+        return $this;
+    }
+
+
+    /**
+     * Add logger handler
+     * @param LoggerHandlerInterface $handler
+     * @return $this
+     */
+    public function addHandler(LoggerHandlerInterface $handler): self
+    {
+        $this->handlers[] = $handler;
+
+        return $this;
+    }
+
+    /**
+     * Return the list of handlers instance
+     * @return LoggerHandlerInterface[]
+     */
+    public function getHandlers(): array
+    {
+        return $this->handlers;
     }
 
     /**
@@ -114,7 +175,7 @@ class Logger implements LoggerInterface
      *
      * @throws Exception
      *
-     * @return self
+     * @return $this
      */
     public function setLevel(string $logLevel): self
     {
@@ -132,28 +193,15 @@ class Logger implements LoggerInterface
     }
 
     /**
-     * {@inheritdoc}
+     * Set log channel
      *
-     * @see AbstractLoggerHandler::setChannel
+     * @param string $channel
      *
      * @return self
      */
     public function setChannel(string $channel): self
     {
-        $this->handler->setChannel($channel);
-
-        return $this;
-    }
-
-    /**
-     * {@inheritdoc}
-     * @see AbstractLoggerHandler::setOutput
-     *
-     * @return self
-     */
-    public function setOutput(bool $stdout): self
-    {
-        $this->handler->setOutput($stdout);
+        $this->channel = $channel;
 
         return $this;
     }
@@ -163,9 +211,7 @@ class Logger implements LoggerInterface
      */
     public function emergency(string $message, array $context = []): void
     {
-        if ($this->levelCanLog(LogLevel::EMERGENCY)) {
-            $this->log(LogLevel::EMERGENCY, $message, $context);
-        }
+        $this->logWithLevelThreshold(LogLevel::EMERGENCY, $message, $context);
     }
 
     /**
@@ -173,9 +219,7 @@ class Logger implements LoggerInterface
      */
     public function alert(string $message, array $context = []): void
     {
-        if ($this->levelCanLog(LogLevel::ALERT)) {
-            $this->log(LogLevel::ALERT, $message, $context);
-        }
+        $this->logWithLevelThreshold(LogLevel::ALERT, $message, $context);
     }
 
     /**
@@ -183,9 +227,7 @@ class Logger implements LoggerInterface
      */
     public function critical(string $message, array $context = []): void
     {
-        if ($this->levelCanLog(LogLevel::CRITICAL)) {
-            $this->log(LogLevel::CRITICAL, $message, $context);
-        }
+        $this->logWithLevelThreshold(LogLevel::CRITICAL, $message, $context);
     }
 
     /**
@@ -193,9 +235,7 @@ class Logger implements LoggerInterface
      */
     public function error(string $message, array $context = []): void
     {
-        if ($this->levelCanLog(LogLevel::ERROR)) {
-            $this->log(LogLevel::ERROR, $message, $context);
-        }
+        $this->logWithLevelThreshold(LogLevel::ERROR, $message, $context);
     }
 
     /**
@@ -203,9 +243,7 @@ class Logger implements LoggerInterface
      */
     public function warning(string $message, array $context = []): void
     {
-        if ($this->levelCanLog(LogLevel::WARNING)) {
-            $this->log(LogLevel::WARNING, $message, $context);
-        }
+        $this->logWithLevelThreshold(LogLevel::WARNING, $message, $context);
     }
 
     /**
@@ -213,9 +251,7 @@ class Logger implements LoggerInterface
      */
     public function notice(string $message, array $context = []): void
     {
-        if ($this->levelCanLog(LogLevel::NOTICE)) {
-            $this->log(LogLevel::NOTICE, $message, $context);
-        }
+        $this->logWithLevelThreshold(LogLevel::NOTICE, $message, $context);
     }
 
     /**
@@ -223,9 +259,7 @@ class Logger implements LoggerInterface
      */
     public function info(string $message, array $context = []): void
     {
-        if ($this->levelCanLog(LogLevel::INFO)) {
-            $this->log(LogLevel::INFO, $message, $context);
-        }
+        $this->logWithLevelThreshold(LogLevel::INFO, $message, $context);
     }
 
     /**
@@ -233,17 +267,23 @@ class Logger implements LoggerInterface
      */
     public function debug(string $message, array $context = []): void
     {
-        if ($this->levelCanLog(LogLevel::DEBUG)) {
-            $this->log(LogLevel::DEBUG, $message, $context);
-        }
+        $this->logWithLevelThreshold(LogLevel::DEBUG, $message, $context);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function log($level, string $message, array $context = []): void
+    public function log(string $level, string $message, array $context = []): void
     {
-        $this->handler->log($level, $message, $context);
+        foreach ($this->handlers as $handler) {
+            $handler->log(
+                $level,
+                $message,
+                $this->channel,
+                $this->formatter,
+                $context
+            );
+        }
     }
 
     /**
@@ -254,5 +294,22 @@ class Logger implements LoggerInterface
     protected function levelCanLog(string $level): bool
     {
         return $this->levels[$level] >= $this->logLevel;
+    }
+
+    /**
+     *
+     * @param string $level
+     * @param string $message
+     * @param array<string, mixed> $context
+     * @return void
+     */
+    protected function logWithLevelThreshold(
+        string $level,
+        string $message,
+        array $context = []
+    ): void {
+        if ($this->levelCanLog($level)) {
+            $this->log($level, $message, $context);
+        }
     }
 }

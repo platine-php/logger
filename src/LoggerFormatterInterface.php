@@ -29,9 +29,9 @@
  */
 
 /**
- *  @file NullHandler.php
+ *  @file LoggerFormatterInterface.php
  *
- *  The Null Logger handler class
+ *  The Logger formatter interface
  *
  *  @package    Platine\Logger
  *  @author Platine Developers Team
@@ -46,14 +46,26 @@ declare(strict_types=1);
 
 namespace Platine\Logger;
 
-class NullHandler extends AbstractLoggerHandler
+/**
+ * Class LoggerFormatterInterface
+ * @package Platine\Logger
+ */
+interface LoggerFormatterInterface
 {
 
     /**
-     * {@inheritdoc}
+     * Format the log line.
+     *
+     * @param  string $level the log level
+     * @param  string $message the message to log
+     * @param  array<string, mixed>  $context
+     * @param  string $channel the channel to be used
+     * @return string
      */
-    public function log($level, string $message, array $context = []): void
-    {
-        //do nothing
-    }
+    public function format(
+        string $level,
+        string $message,
+        array $context,
+        string $channel
+    ): string;
 }
