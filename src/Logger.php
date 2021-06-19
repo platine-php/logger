@@ -111,14 +111,14 @@ class Logger implements LoggerInterface
     /**
      * Create new logger instance
      *
-     * @param Configuration $config the configuration to use
+     * @param Configuration|null $config the configuration to use
      * @param LoggerFormatterInterface|null $formatter the formatter to use
      */
     public function __construct(
-        Configuration $config,
+        ?Configuration $config = null,
         ?LoggerFormatterInterface $formatter = null
     ) {
-        $this->config = $config;
+        $this->config = $config ?? new Configuration([]);
         $this->formatter = $formatter ?? new DefaultFormatter();
         $this->setLevel($config->getLevel());
 
