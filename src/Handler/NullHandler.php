@@ -46,8 +46,6 @@ declare(strict_types=1);
 
 namespace Platine\Logger\Handler;
 
-use Platine\Logger\LoggerFormatterInterface;
-
 /**
  * Class NullHandler
  * @package Platine\Logger\Handler
@@ -58,13 +56,8 @@ class NullHandler extends AbstractLoggerHandler
     /**
      * {@inheritdoc}
      */
-    public function log(
-        $level,
-        string $message,
-        string $channel,
-        LoggerFormatterInterface $formatter,
-        array $context = []
-    ): void {
+    public function log(string $message): void
+    {
         //do nothing
     }
 }

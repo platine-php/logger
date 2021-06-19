@@ -60,22 +60,11 @@ interface LoggerHandlerInterface
     public function __construct(Configuration $config);
 
     /**
-     * Logs with an arbitrary level.
+     * Save log message to the handler
      *
-     * @param string   $level
      * @param string  $message
-     * @param string  $channel
-     * @param LoggerFormatterInterface  $formatter
-     * @param array<string, mixed> $context
-     *
      * @return void
      *
      */
-    public function log(
-        string $level,
-        string $message,
-        string $channel,
-        LoggerFormatterInterface $formatter,
-        array $context = []
-    ): void;
+    public function log(string $message): void;
 }

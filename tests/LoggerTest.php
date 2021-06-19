@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Platine\Test\Logger;
 
+use DateTime;
 use Exception;
 use org\bovigo\vfs\vfsStream;
 use Platine\Dev\PlatineTestCase;
@@ -14,6 +15,7 @@ use Platine\Logger\Handler\NullHandler;
 use Platine\Logger\Logger;
 use Platine\Logger\LoggerFormatterInterface;
 use Platine\Logger\LogLevel;
+use stdClass;
 
 /**
  * Logger class tests
@@ -240,5 +242,60 @@ class LoggerTest extends PlatineTestCase
         $this->assertTrue($this->vfsLogPath->hasChild($this->logFilename));
         $content = $this->vfsLogPath->getChild($this->logFilename)->getContent();
         $this->assertStringContainsString($logLine, $content);
+    }
+
+    public function testLogUsingException(): void
+    {
+        $logLine = 'Division by zero';
+        $formatter = new DefaultFormatter();
+        $expectedLogLine = 'Division by zero';
+        $path = $this->vfsLogPath->url();
+        $config = new Configuration([
+            'file_path' => $path,
+            'file_prefix' => 'log-'
+        ]);
+
+        $l = new Logger($config);
+        $l->addHandler(new FileHandler($config));
+
+        try {
+            throw new Exception('Error Processing Request', 1);
+        } catch (Exception $e) {
+            $l->log(
+                LogLevel::DEBUG,
+                $logLine,
+                ['exception' => $e]
+            );
+        }
+        $this->assertTrue($this->vfsLogPath->hasChild($this->logFilename));
+        $content = $this->vfsLogPath->getChild($this->logFilename)->getContent();
+        $this->assertStringContainsString($expectedLogLine, $content);
+    }
+
+    public function testLogUsingContext(): void
+    {
+        $time = strtotime('2021-01-20T17:39:09+00:00');
+        $logLine = 'Debug message {foo} {date} {object}';
+        $expectedLogLine = 'Debug message bar 2021-01-20T17:39:09+00:00 [object stdClass]';
+        $formatter = new DefaultFormatter();
+        $path = $this->vfsLogPath->url();
+        $config = new Configuration([
+            'file_path' => $path,
+            'file_prefix' => 'log-'
+        ]);
+
+        $l = new Logger($config, $formatter);
+        $l->addHandler(new FileHandler($config));
+
+        $l->log(LogLevel::DEBUG, $logLine, [
+            'foo' => 'bar',
+            'date' => new DateTime('@' . $time),
+            'object' => new stdClass(),
+            'array' => array(1, 2, 3)
+        ]);
+
+        $this->assertTrue($this->vfsLogPath->hasChild($this->logFilename));
+        $content = $this->vfsLogPath->getChild($this->logFilename)->getContent();
+        $this->assertStringContainsString($expectedLogLine, $content);
     }
 }

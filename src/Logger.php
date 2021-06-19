@@ -275,14 +275,15 @@ class Logger implements LoggerInterface
      */
     public function log(string $level, string $message, array $context = []): void
     {
+        $msg = $this->formatter->format(
+            $level,
+            $message,
+            $context,
+            $this->channel
+        );
+
         foreach ($this->handlers as $handler) {
-            $handler->log(
-                $level,
-                $message,
-                $this->channel,
-                $this->formatter,
-                $context
-            );
+            $handler->log($msg);
         }
     }
 

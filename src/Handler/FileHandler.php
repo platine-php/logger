@@ -83,13 +83,8 @@ class FileHandler extends AbstractLoggerHandler
     /**
      * {@inheritdoc}
      */
-    public function log(
-        $level,
-        string $message,
-        string $channel,
-        LoggerFormatterInterface $formatter,
-        array $context = []
-    ): void {
+    public function log(string $message): void
+    {
         //Check the log directory
         $this->checkLogDir();
 
@@ -97,20 +92,17 @@ class FileHandler extends AbstractLoggerHandler
                        $this->config->getFilePrefix()
                        . date('Y-m-d') . '.log';
 
-        $logLine = $formatter->format($level, $message, $context, $channel);
-
         try {
             $handler = fopen($logFilePath, 'a+');
             // exclusive lock, will get released when the file is closed
             flock($handler, LOCK_EX);
-            fwrite($handler, $logLine);
+            fwrite($handler, $message);
             fclose($handler);
         } catch (Throwable $exception) {
             throw new RuntimeException(
                 sprintf(
-                    'Could not open log file [%s] for writing to channel [%s].',
-                    $logFilePath,
-                    $channel
+                    'Could not open log file [%s] for writing.',
+                    $logFilePath
                 ),
                 0,
                 $exception->getPrevious()
