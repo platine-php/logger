@@ -48,7 +48,7 @@ namespace Platine\Logger;
 
 use Exception;
 use Platine\Logger\Formatter\DefaultFormatter;
-use Platine\Logger\Handler\FileHandler;
+use Platine\Logger\Handler\NullHandler;
 
 /**
  * Class Logger
@@ -122,7 +122,7 @@ class Logger implements LoggerInterface
         $this->formatter = $formatter ?? new DefaultFormatter();
         $this->setLevel($this->config->getLevel());
 
-        $this->addHandler(new FileHandler($this->config));
+        $this->addHandler(new NullHandler($this->config));
     }
 
     /**

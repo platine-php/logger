@@ -69,12 +69,12 @@ class LoggerTest extends PlatineTestCase
 
         $this->assertCount(1, $l->getHandlers());
 
-        $l->addHandler(new NullHandler($config));
+        $l->addHandler(new FileHandler($config));
 
         $handlers = $l->getHandlers();
         $this->assertCount(2, $handlers);
-        $this->assertInstanceOf(FileHandler::class, $handlers[0]);
-        $this->assertInstanceOf(NullHandler::class, $handlers[1]);
+        $this->assertInstanceOf(FileHandler::class, $handlers[1]);
+        $this->assertInstanceOf(NullHandler::class, $handlers[0]);
     }
 
     public function testSetLogLevel(): void
@@ -130,6 +130,7 @@ class LoggerTest extends PlatineTestCase
         ]);
 
         $l = new Logger($config);
+        $l->addHandler(new FileHandler($config));
         $l->debug($logLine);
         $this->assertTrue($this->vfsLogPath->hasChild($this->logFilename));
         $content = $this->vfsLogPath->getChild($this->logFilename)->getContent();
@@ -144,6 +145,7 @@ class LoggerTest extends PlatineTestCase
         ]);
 
         $l = new Logger($config);
+        $l->addHandler(new FileHandler($config));
         $l->info($logLine);
         $this->assertTrue($this->vfsLogPath->hasChild($this->logFilename));
         $content = $this->vfsLogPath->getChild($this->logFilename)->getContent();
@@ -158,6 +160,7 @@ class LoggerTest extends PlatineTestCase
         ]);
 
         $l = new Logger($config);
+        $l->addHandler(new FileHandler($config));
         $l->notice($logLine);
         $this->assertTrue($this->vfsLogPath->hasChild($this->logFilename));
         $content = $this->vfsLogPath->getChild($this->logFilename)->getContent();
@@ -172,6 +175,7 @@ class LoggerTest extends PlatineTestCase
         ]);
 
         $l = new Logger($config);
+        $l->addHandler(new FileHandler($config));
         $l->warning($logLine);
         $this->assertTrue($this->vfsLogPath->hasChild($this->logFilename));
         $content = $this->vfsLogPath->getChild($this->logFilename)->getContent();
@@ -186,6 +190,7 @@ class LoggerTest extends PlatineTestCase
         ]);
 
         $l = new Logger($config);
+        $l->addHandler(new FileHandler($config));
         $l->error($logLine);
         $this->assertTrue($this->vfsLogPath->hasChild($this->logFilename));
         $content = $this->vfsLogPath->getChild($this->logFilename)->getContent();
@@ -200,6 +205,7 @@ class LoggerTest extends PlatineTestCase
         ]);
 
         $l = new Logger($config);
+        $l->addHandler(new FileHandler($config));
         $l->critical($logLine);
         $this->assertTrue($this->vfsLogPath->hasChild($this->logFilename));
         $content = $this->vfsLogPath->getChild($this->logFilename)->getContent();
@@ -214,6 +220,7 @@ class LoggerTest extends PlatineTestCase
         ]);
 
         $l = new Logger($config);
+        $l->addHandler(new FileHandler($config));
         $l->alert($logLine);
         $this->assertTrue($this->vfsLogPath->hasChild($this->logFilename));
         $content = $this->vfsLogPath->getChild($this->logFilename)->getContent();
@@ -228,6 +235,7 @@ class LoggerTest extends PlatineTestCase
         ]);
 
         $l = new Logger($config);
+        $l->addHandler(new FileHandler($config));
         $l->emergency($logLine);
         $this->assertTrue($this->vfsLogPath->hasChild($this->logFilename));
         $content = $this->vfsLogPath->getChild($this->logFilename)->getContent();
