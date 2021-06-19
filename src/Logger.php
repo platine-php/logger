@@ -120,9 +120,9 @@ class Logger implements LoggerInterface
     ) {
         $this->config = $config ?? new Configuration([]);
         $this->formatter = $formatter ?? new DefaultFormatter();
-        $this->setLevel($config->getLevel());
+        $this->setLevel($this->config->getLevel());
 
-        $this->addHandler(new FileHandler($config));
+        $this->addHandler(new FileHandler($this->config));
     }
 
     /**
