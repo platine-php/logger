@@ -54,4 +54,20 @@ use Platine\Stdlib\Config\AbstractConfiguration;
  */
 class Configuration extends AbstractConfiguration
 {
+    /**
+     * {@inheritdoc}
+     */
+    public function getValidationRules(): array
+    {
+        return [
+            'level' => 'string',
+            'handlers' => 'array',
+            'handlers.file' => 'array',
+            'handlers.file.path' => 'string',
+            'handlers.file.prefix' => 'string',
+            'handlers.file.enable' => 'boolean',
+            'handlers.file.class' => 'string',
+            'handlers.file.level' => 'string',
+        ];
+    }
 }
