@@ -124,7 +124,11 @@ class Logger implements LoggerInterface
         ]);
 
         $this->formatter = $formatter ?? new DefaultFormatter();
-        $this->setLevel($this->config->get('level'));
+        $level = $this->config->has('level')
+                ? $this->config->get('level')
+                : LogLevel::DEBUG;
+
+        $this->setLevel($level);
 
         $this->setHandlers();
     }
