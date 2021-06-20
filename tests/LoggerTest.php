@@ -45,15 +45,31 @@ class LoggerTest extends PlatineTestCase
 
     public function testConstructorDefault(): void
     {
-        $config = new Configuration([]);
+        $l = new Logger();
+        $this->assertInstanceOf(DefaultFormatter::class, $l->getFormatter());
+    }
+
+    public function testConstructorHandlers(): void
+    {
+        $config = new Configuration([
+            'level' => LogLevel::DEBUG,
+            'handlers' => [
+                'null' => [
+                    'enable' => true
+                ]
+            ]
+        ]);
 
         $l = new Logger($config);
         $this->assertInstanceOf(DefaultFormatter::class, $l->getFormatter());
+        $this->assertCount(1, $l->getHandlers());
     }
 
     public function testSetGetFormatter(): void
     {
-        $config = new Configuration([]);
+        $config = new Configuration([
+            'level' => LogLevel::DEBUG
+        ]);
 
         $formatter = $this->getMockInstance(DefaultFormatter::class);
 
@@ -65,23 +81,27 @@ class LoggerTest extends PlatineTestCase
 
     public function testAddGetHandlers(): void
     {
-        $config = new Configuration([]);
+        $config = new Configuration([
+            'level' => LogLevel::DEBUG
+        ]);
 
         $l = new Logger($config);
 
-        $this->assertCount(1, $l->getHandlers());
+        $this->assertCount(0, $l->getHandlers());
 
-        $l->addHandler(new FileHandler($config));
+        $l->addHandler('null', new NullHandler($config));
 
         $handlers = $l->getHandlers();
-        $this->assertCount(2, $handlers);
-        $this->assertInstanceOf(FileHandler::class, $handlers[1]);
-        $this->assertInstanceOf(NullHandler::class, $handlers[0]);
+        $this->assertCount(1, $handlers);
+        $this->assertArrayHasKey('null', $handlers);
+        $this->assertInstanceOf(NullHandler::class, $handlers['null']);
     }
 
     public function testSetLogLevel(): void
     {
-        $config = new Configuration([]);
+        $config = new Configuration([
+            'level' => LogLevel::DEBUG
+        ]);
         $l = new Logger($config);
 
         $l->setLevel(LogLevel::EMERGENCY);
@@ -93,7 +113,9 @@ class LoggerTest extends PlatineTestCase
 
     public function testSetChannel(): void
     {
-        $config = new Configuration([]);
+        $config = new Configuration([
+            'level' => LogLevel::DEBUG
+        ]);
         $l = new Logger($config);
 
         $l->setChannel('foo_channel');
@@ -107,7 +129,9 @@ class LoggerTest extends PlatineTestCase
     public function testSetLogLevelInvalid(): void
     {
         $this->expectException(Exception::class);
-        $config = new Configuration([]);
+        $config = new Configuration([
+            'level' => LogLevel::DEBUG
+        ]);
 
         $l = new Logger($config);
         $l->setLevel('invalid_log_level');
@@ -115,7 +139,9 @@ class LoggerTest extends PlatineTestCase
 
     public function testLogLevelNone(): void
     {
-        $config = new Configuration([]);
+        $config = new Configuration([
+            'level' => LogLevel::DEBUG
+        ]);
 
         $l = new Logger($config);
         $l->setLevel(Logger::LOG_LEVEL_NONE);
@@ -127,12 +153,17 @@ class LoggerTest extends PlatineTestCase
     {
         $logLine = 'Debug message';
         $config = new Configuration([
-            'file_path' => $this->vfsLogPath->url(),
-            'file_prefix' => 'log-'
+            'level' => LogLevel::DEBUG,
+            'handlers' => [
+                'file' => [
+                    'path' => $this->vfsLogPath->url(),
+                    'prefix' => 'log-'
+                ]
+            ]
         ]);
 
         $l = new Logger($config);
-        $l->addHandler(new FileHandler($config));
+        $l->addHandler('file', new FileHandler($config));
         $l->debug($logLine);
         $this->assertTrue($this->vfsLogPath->hasChild($this->logFilename));
         $content = $this->vfsLogPath->getChild($this->logFilename)->getContent();
@@ -143,11 +174,17 @@ class LoggerTest extends PlatineTestCase
     {
         $logLine = 'Info message';
         $config = new Configuration([
-            'file_path' => $this->vfsLogPath->url()
+            'level' => LogLevel::DEBUG,
+            'handlers' => [
+                'file' => [
+                    'path' => $this->vfsLogPath->url(),
+                    'prefix' => 'log-'
+                ]
+            ]
         ]);
 
         $l = new Logger($config);
-        $l->addHandler(new FileHandler($config));
+        $l->addHandler('file', new FileHandler($config));
         $l->info($logLine);
         $this->assertTrue($this->vfsLogPath->hasChild($this->logFilename));
         $content = $this->vfsLogPath->getChild($this->logFilename)->getContent();
@@ -158,11 +195,17 @@ class LoggerTest extends PlatineTestCase
     {
         $logLine = 'Motice message';
         $config = new Configuration([
-            'file_path' => $this->vfsLogPath->url()
+            'level' => LogLevel::DEBUG,
+            'handlers' => [
+                'file' => [
+                    'path' => $this->vfsLogPath->url(),
+                    'prefix' => 'log-'
+                ]
+            ]
         ]);
 
         $l = new Logger($config);
-        $l->addHandler(new FileHandler($config));
+        $l->addHandler('file', new FileHandler($config));
         $l->notice($logLine);
         $this->assertTrue($this->vfsLogPath->hasChild($this->logFilename));
         $content = $this->vfsLogPath->getChild($this->logFilename)->getContent();
@@ -173,11 +216,17 @@ class LoggerTest extends PlatineTestCase
     {
         $logLine = 'Warning message';
         $config = new Configuration([
-            'file_path' => $this->vfsLogPath->url()
+            'level' => LogLevel::DEBUG,
+            'handlers' => [
+                'file' => [
+                    'path' => $this->vfsLogPath->url(),
+                    'prefix' => 'log-'
+                ]
+            ]
         ]);
 
         $l = new Logger($config);
-        $l->addHandler(new FileHandler($config));
+        $l->addHandler('file', new FileHandler($config));
         $l->warning($logLine);
         $this->assertTrue($this->vfsLogPath->hasChild($this->logFilename));
         $content = $this->vfsLogPath->getChild($this->logFilename)->getContent();
@@ -188,11 +237,17 @@ class LoggerTest extends PlatineTestCase
     {
         $logLine = 'Error message';
         $config = new Configuration([
-            'file_path' => $this->vfsLogPath->url()
+            'level' => LogLevel::DEBUG,
+            'handlers' => [
+                'file' => [
+                    'path' => $this->vfsLogPath->url(),
+                    'prefix' => 'log-'
+                ]
+            ]
         ]);
 
         $l = new Logger($config);
-        $l->addHandler(new FileHandler($config));
+        $l->addHandler('file', new FileHandler($config));
         $l->error($logLine);
         $this->assertTrue($this->vfsLogPath->hasChild($this->logFilename));
         $content = $this->vfsLogPath->getChild($this->logFilename)->getContent();
@@ -203,11 +258,17 @@ class LoggerTest extends PlatineTestCase
     {
         $logLine = 'Critical message';
         $config = new Configuration([
-            'file_path' => $this->vfsLogPath->url()
+            'level' => LogLevel::DEBUG,
+            'handlers' => [
+                'file' => [
+                    'path' => $this->vfsLogPath->url(),
+                    'prefix' => 'log-'
+                ]
+            ]
         ]);
 
         $l = new Logger($config);
-        $l->addHandler(new FileHandler($config));
+        $l->addHandler('file', new FileHandler($config));
         $l->critical($logLine);
         $this->assertTrue($this->vfsLogPath->hasChild($this->logFilename));
         $content = $this->vfsLogPath->getChild($this->logFilename)->getContent();
@@ -218,11 +279,17 @@ class LoggerTest extends PlatineTestCase
     {
         $logLine = 'Alert message';
         $config = new Configuration([
-            'file_path' => $this->vfsLogPath->url()
+            'level' => LogLevel::DEBUG,
+            'handlers' => [
+                'file' => [
+                    'path' => $this->vfsLogPath->url(),
+                    'prefix' => 'log-'
+                ]
+            ]
         ]);
 
         $l = new Logger($config);
-        $l->addHandler(new FileHandler($config));
+        $l->addHandler('file', new FileHandler($config));
         $l->alert($logLine);
         $this->assertTrue($this->vfsLogPath->hasChild($this->logFilename));
         $content = $this->vfsLogPath->getChild($this->logFilename)->getContent();
@@ -233,11 +300,17 @@ class LoggerTest extends PlatineTestCase
     {
         $logLine = 'Emergency message';
         $config = new Configuration([
-            'file_path' => $this->vfsLogPath->url()
+            'level' => LogLevel::DEBUG,
+            'handlers' => [
+                'file' => [
+                    'path' => $this->vfsLogPath->url(),
+                    'prefix' => 'log-'
+                ]
+            ]
         ]);
 
         $l = new Logger($config);
-        $l->addHandler(new FileHandler($config));
+        $l->addHandler('file', new FileHandler($config));
         $l->emergency($logLine);
         $this->assertTrue($this->vfsLogPath->hasChild($this->logFilename));
         $content = $this->vfsLogPath->getChild($this->logFilename)->getContent();
@@ -247,16 +320,20 @@ class LoggerTest extends PlatineTestCase
     public function testLogUsingException(): void
     {
         $logLine = 'Division by zero';
-        $formatter = new DefaultFormatter();
         $expectedLogLine = 'Division by zero';
         $path = $this->vfsLogPath->url();
         $config = new Configuration([
-            'file_path' => $path,
-            'file_prefix' => 'log-'
+            'level' => LogLevel::DEBUG,
+            'handlers' => [
+                'file' => [
+                    'path' => $this->vfsLogPath->url(),
+                    'prefix' => 'log-'
+                ]
+            ]
         ]);
 
         $l = new Logger($config);
-        $l->addHandler(new FileHandler($config));
+        $l->addHandler('file', new FileHandler($config));
 
         try {
             throw new Exception('Error Processing Request', 1);
@@ -280,12 +357,17 @@ class LoggerTest extends PlatineTestCase
         $formatter = new DefaultFormatter();
         $path = $this->vfsLogPath->url();
         $config = new Configuration([
-            'file_path' => $path,
-            'file_prefix' => 'log-'
+            'level' => LogLevel::DEBUG,
+            'handlers' => [
+                'file' => [
+                    'path' => $path,
+                    'prefix' => 'log-'
+                ]
+            ]
         ]);
 
         $l = new Logger($config, $formatter);
-        $l->addHandler(new FileHandler($config));
+        $l->addHandler('file', new FileHandler($config));
 
         $l->log(LogLevel::DEBUG, $logLine, [
             'foo' => 'bar',

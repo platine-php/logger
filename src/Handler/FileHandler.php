@@ -48,7 +48,6 @@ namespace Platine\Logger\Handler;
 
 use Exception;
 use Platine\Logger\Configuration;
-use Platine\Logger\LoggerFormatterInterface;
 use Platine\Stdlib\Helper\Path;
 use RuntimeException;
 use Throwable;
@@ -65,7 +64,7 @@ class FileHandler extends AbstractLoggerHandler
      * The log directory path
      * @var string
      */
-    protected string $logPath;
+    protected string $path;
 
     /**
      * Create new File Handler
@@ -74,8 +73,8 @@ class FileHandler extends AbstractLoggerHandler
     public function __construct(Configuration $config)
     {
         parent::__construct($config);
-        $this->logPath = Path::normalizePathDS(
-            $config->getFilePath(),
+        $this->path = Path::normalizePathDS(
+            $config->get('handlers.file.path'),
             true
         );
     }
@@ -88,8 +87,8 @@ class FileHandler extends AbstractLoggerHandler
         //Check the log directory
         $this->checkLogDir();
 
-        $logFilePath = $this->logPath .
-                       $this->config->getFilePrefix()
+        $logFilePath = $this->path .
+                       $this->config->get('handlers.file.prefix')
                        . date('Y-m-d') . '.log';
 
         try {
@@ -116,10 +115,10 @@ class FileHandler extends AbstractLoggerHandler
      */
     protected function checkLogDir(): void
     {
-        if (!is_dir($this->logPath) || !is_writable($this->logPath)) {
+        if (!is_dir($this->path) || !is_writable($this->path)) {
             throw new Exception(sprintf(
                 'The log directory [%s] does not exist or is not writable',
-                $this->logPath
+                $this->path
             ));
         }
     }

@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Platine\Test\Logger\Handler;
 
-use DateTime;
 use Exception;
 use org\bovigo\vfs\vfsStream;
 use Platine\Dev\PlatineTestCase;
@@ -13,7 +12,6 @@ use Platine\Logger\Formatter\DefaultFormatter;
 use Platine\Logger\Handler\FileHandler;
 use Platine\Logger\LogLevel;
 use RuntimeException;
-use stdClass;
 
 /**
  * FileHandler class tests
@@ -46,12 +44,16 @@ class FileHandlerTest extends PlatineTestCase
     {
         $path = $this->vfsLogPath->url();
         $config = new Configuration([
-            'file_path' => $path,
-            'file_prefix' => 'log-'
+            'handlers' => [
+                'file' => [
+                    'path' => $path,
+                    'prefix' => 'log-'
+                ]
+            ]
         ]);
         $l = new FileHandler($config);
 
-        $lpr = $this->getPrivateProtectedAttribute(FileHandler::class, 'logPath');
+        $lpr = $this->getPrivateProtectedAttribute(FileHandler::class, 'path');
 
         $this->assertEquals($path . DIRECTORY_SEPARATOR, $lpr->getValue($l));
     }
@@ -61,8 +63,12 @@ class FileHandlerTest extends PlatineTestCase
     {
         $this->expectException(Exception::class);
         $config = new Configuration([
-            'file_path' => 'path/foo/bar/',
-            'file_prefix' => 'log-'
+            'handlers' => [
+                'file' => [
+                    'path' => '/path/not/found',
+                    'prefix' => 'log-'
+                ]
+            ]
         ]);
         $l = new FileHandler($config);
         $formatter = $this->getMockInstance(DefaultFormatter::class);
@@ -76,8 +82,12 @@ class FileHandlerTest extends PlatineTestCase
         $this->expectException(RuntimeException::class);
         $path = $this->vfsLogPath->url();
         $config = new Configuration([
-            'file_path' => $path,
-            'file_prefix' => 'log-'
+            'handlers' => [
+                'file' => [
+                    'path' => $path,
+                    'prefix' => 'log-'
+                ]
+            ]
         ]);
         $l = new FileHandler($config);
         $formatter = $this->getMockInstance(DefaultFormatter::class);

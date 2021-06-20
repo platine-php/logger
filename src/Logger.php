@@ -64,7 +64,7 @@ class Logger implements LoggerInterface
 
     /**
      * The list of logger handler
-     * @var LoggerHandlerInterface[]
+     * @var array<string, LoggerHandlerInterface>
      */
     protected array $handlers = [];
 
@@ -118,11 +118,15 @@ class Logger implements LoggerInterface
         ?Configuration $config = null,
         ?LoggerFormatterInterface $formatter = null
     ) {
-        $this->config = $config ?? new Configuration([]);
-        $this->formatter = $formatter ?? new DefaultFormatter();
-        $this->setLevel($this->config->getLevel());
+        $this->config = $config ?? new Configuration([
+           'level' => LogLevel::DEBUG,
+           'handlers' => []
+        ]);
 
-        $this->addHandler(new NullHandler($this->config));
+        $this->formatter = $formatter ?? new DefaultFormatter();
+        $this->setLevel($this->config->get('level'));
+
+        $this->setHandlers();
     }
 
     /**
@@ -149,19 +153,20 @@ class Logger implements LoggerInterface
 
     /**
      * Add logger handler
+     * @param string $name
      * @param LoggerHandlerInterface $handler
      * @return $this
      */
-    public function addHandler(LoggerHandlerInterface $handler): self
+    public function addHandler(string $name, LoggerHandlerInterface $handler): self
     {
-        $this->handlers[] = $handler;
+        $this->handlers[$name] = $handler;
 
         return $this;
     }
 
     /**
      * Return the list of handlers instance
-     * @return LoggerHandlerInterface[]
+     * @return array<string, LoggerHandlerInterface>
      */
     public function getHandlers(): array
     {
@@ -211,7 +216,7 @@ class Logger implements LoggerInterface
      */
     public function emergency(string $message, array $context = []): void
     {
-        $this->logWithLevelThreshold(LogLevel::EMERGENCY, $message, $context);
+        $this->log(LogLevel::EMERGENCY, $message, $context);
     }
 
     /**
@@ -219,7 +224,7 @@ class Logger implements LoggerInterface
      */
     public function alert(string $message, array $context = []): void
     {
-        $this->logWithLevelThreshold(LogLevel::ALERT, $message, $context);
+        $this->log(LogLevel::ALERT, $message, $context);
     }
 
     /**
@@ -227,7 +232,7 @@ class Logger implements LoggerInterface
      */
     public function critical(string $message, array $context = []): void
     {
-        $this->logWithLevelThreshold(LogLevel::CRITICAL, $message, $context);
+        $this->log(LogLevel::CRITICAL, $message, $context);
     }
 
     /**
@@ -235,7 +240,7 @@ class Logger implements LoggerInterface
      */
     public function error(string $message, array $context = []): void
     {
-        $this->logWithLevelThreshold(LogLevel::ERROR, $message, $context);
+        $this->log(LogLevel::ERROR, $message, $context);
     }
 
     /**
@@ -243,7 +248,7 @@ class Logger implements LoggerInterface
      */
     public function warning(string $message, array $context = []): void
     {
-        $this->logWithLevelThreshold(LogLevel::WARNING, $message, $context);
+        $this->log(LogLevel::WARNING, $message, $context);
     }
 
     /**
@@ -251,7 +256,7 @@ class Logger implements LoggerInterface
      */
     public function notice(string $message, array $context = []): void
     {
-        $this->logWithLevelThreshold(LogLevel::NOTICE, $message, $context);
+        $this->log(LogLevel::NOTICE, $message, $context);
     }
 
     /**
@@ -259,7 +264,7 @@ class Logger implements LoggerInterface
      */
     public function info(string $message, array $context = []): void
     {
-        $this->logWithLevelThreshold(LogLevel::INFO, $message, $context);
+        $this->log(LogLevel::INFO, $message, $context);
     }
 
     /**
@@ -267,7 +272,7 @@ class Logger implements LoggerInterface
      */
     public function debug(string $message, array $context = []): void
     {
-        $this->logWithLevelThreshold(LogLevel::DEBUG, $message, $context);
+        $this->log(LogLevel::DEBUG, $message, $context);
     }
 
     /**
@@ -282,35 +287,52 @@ class Logger implements LoggerInterface
             $this->channel
         );
 
-        foreach ($this->handlers as $handler) {
-            $handler->log($msg);
+        foreach ($this->handlers as $name => $handler) {
+            if ($this->handlerCanLog($name, $level)) {
+                $handler->log($msg);
+            }
         }
     }
 
     /**
-     * Determine if the logger should log at a certain log level.
-     * @param  string    $level log level to check
+     * Whether the given handler can log
+     * @param string $name
+     * @param string $level
      * @return bool
      */
-    protected function levelCanLog(string $level): bool
+    protected function handlerCanLog(string $name, string $level): bool
     {
-        return $this->levels[$level] >= $this->logLevel;
+        $key = 'handlers.' . $name;
+        $currentLevel = $this->logLevel;
+        $logLevel = $this->levels[$level];
+
+        if ($this->config->has($key)) {
+            $handler = $this->config->get($key);
+            $handlerLevel = $handler['level'] ?? $this->config->get('level');
+
+            $currentLevel = $this->levels[$handlerLevel];
+        }
+
+        return $logLevel >= $currentLevel;
     }
 
     /**
-     *
-     * @param string $level
-     * @param string $message
-     * @param array<string, mixed> $context
+     * Set the handlers using the configuration
      * @return void
      */
-    protected function logWithLevelThreshold(
-        string $level,
-        string $message,
-        array $context = []
-    ): void {
-        if ($this->levelCanLog($level)) {
-            $this->log($level, $message, $context);
+    protected function setHandlers(): void
+    {
+        $handlers = [];
+        if ($this->config->has('handlers')) {
+            $handlers = $this->config->get('handlers');
+        }
+
+        foreach ($handlers as $name => $handler) {
+            $enable = $handler['enable'] ?? false;
+            if ($enable) {
+                $class = $handler['class'] ?? NullHandler::class;
+                $this->addHandler($name, new $class($this->config));
+            }
         }
     }
 }
