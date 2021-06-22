@@ -51,7 +51,6 @@ use Platine\Logger\Configuration;
 use Platine\Stdlib\Helper\Path;
 use RuntimeException;
 use Throwable;
-use function Platine\Logger\fopen;
 
 /**
  * Class FileHandler
