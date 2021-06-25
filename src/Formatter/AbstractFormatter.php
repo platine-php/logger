@@ -89,7 +89,7 @@ abstract class AbstractFormatter implements LoggerFormatterInterface
                 $trace['type'] ?? '',
                 $trace['function'] ?? '',
                 isset($trace['args']) ? '...' : '',
-                $trace['line']
+                $trace['line'] ?? ''
             ) . "\n";
         }
 
