@@ -84,10 +84,10 @@ abstract class AbstractFormatter implements LoggerFormatterInterface
             $traceStr .= sprintf(
                 '%d. %s:%s%s%s(%s)::%d',
                 $i + 1,
-                $trace['file'],
+                $trace['file'] ?? '',
                 $trace['class'] ?? '',
                 $trace['type'] ?? '',
-                $trace['function'],
+                $trace['function'] ?? '',
                 isset($trace['args']) ? '...' : '',
                 $trace['line']
             ) . "\n";
