@@ -353,7 +353,7 @@ class LoggerTest extends PlatineTestCase
     {
         $time = strtotime('2021-01-20T17:39:09+00:00');
         $logLine = 'Debug message {foo} {date} {object}';
-        $expectedLogLine = 'Debug message bar 2021-01-20T17:39:09+00:00 [object stdClass]';
+        $expectedLogLine = 'Debug message "bar" DateTime { 2021-01-20T17:39:09+00:00 } stdClass';
         $formatter = new DefaultFormatter();
         $path = $this->vfsLogPath->url();
         $config = new Configuration([

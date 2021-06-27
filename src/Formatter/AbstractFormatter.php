@@ -46,10 +46,9 @@ declare(strict_types=1);
 
 namespace Platine\Logger\Formatter;
 
-use DateTime;
 use DateTimeImmutable;
-use DateTimeInterface;
 use Platine\Logger\LoggerFormatterInterface;
+use Platine\Stdlib\Helper\Str;
 use Throwable;
 
 /**
@@ -112,20 +111,7 @@ abstract class AbstractFormatter implements LoggerFormatterInterface
 
         $replacements = [];
         foreach ($context as $key => $value) {
-            if (
-                $value === null
-                || is_scalar($value)
-                || (is_object($value)
-                && method_exists($value, '__toString'))
-            ) {
-                $replacements['{' . $key . '}'] = $value;
-            } elseif ($value instanceof DateTimeInterface) {
-                $replacements['{' . $key . '}'] = $value->format(DateTime::RFC3339);
-            } elseif (is_object($value)) {
-                $replacements['{' . $key . '}'] = '[object ' . get_class($value) . ']';
-            } else {
-                $replacements['{' . $key . '}'] = '[' . gettype($value) . ']';
-            }
+            $replacements['{' . $key . '}'] = Str::stringify($value);
         }
 
         return strtr($message, $replacements);
