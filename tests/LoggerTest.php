@@ -49,22 +49,6 @@ class LoggerTest extends PlatineTestCase
         $this->assertInstanceOf(DefaultFormatter::class, $l->getFormatter());
     }
 
-    public function testConstructorHandlers(): void
-    {
-        $config = new Configuration([
-            'level' => LogLevel::DEBUG,
-            'handlers' => [
-                'null' => [
-                    'enable' => true
-                ]
-            ]
-        ]);
-
-        $l = new Logger($config);
-        $this->assertInstanceOf(DefaultFormatter::class, $l->getFormatter());
-        $this->assertCount(1, $l->getHandlers());
-    }
-
     public function testSetGetFormatter(): void
     {
         $config = new Configuration([
@@ -353,7 +337,7 @@ class LoggerTest extends PlatineTestCase
     {
         $time = strtotime('2021-01-20T17:39:09+00:00');
         $logLine = 'Debug message {foo} {date} {object}';
-        $expectedLogLine = 'Debug message "bar" DateTime { 2021-01-20T17:39:09+00:00 } stdClass';
+        $expectedLogLine = 'Debug message bar DateTime { 2021-01-20T17:39:09+00:00 } stdClass';
         $formatter = new DefaultFormatter();
         $path = $this->vfsLogPath->url();
         $config = new Configuration([

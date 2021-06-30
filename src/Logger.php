@@ -118,10 +118,7 @@ class Logger implements LoggerInterface
         ?Configuration $config = null,
         ?LoggerFormatterInterface $formatter = null
     ) {
-        $this->config = $config ?? new Configuration([
-           'level' => LogLevel::DEBUG,
-           'handlers' => []
-        ]);
+        $this->config = $config ?? new Configuration([]);
 
         $this->formatter = $formatter ?? new DefaultFormatter();
         $level = $this->config->has('level')
@@ -129,8 +126,6 @@ class Logger implements LoggerInterface
                 : LogLevel::DEBUG;
 
         $this->setLevel($level);
-
-        $this->setHandlers();
     }
 
     /**
@@ -318,25 +313,5 @@ class Logger implements LoggerInterface
         }
 
         return $logLevel >= $currentLevel;
-    }
-
-    /**
-     * Set the handlers using the configuration
-     * @return void
-     */
-    protected function setHandlers(): void
-    {
-        $handlers = [];
-        if ($this->config->has('handlers')) {
-            $handlers = $this->config->get('handlers');
-        }
-
-        foreach ($handlers as $name => $handler) {
-            $enable = $handler['enable'] ?? false;
-            if ($enable) {
-                $class = $handler['class'] ?? NullHandler::class;
-                $this->addHandler($name, new $class($this->config));
-            }
-        }
     }
 }

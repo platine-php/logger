@@ -65,9 +65,28 @@ class Configuration extends AbstractConfiguration
             'handlers.file' => 'array',
             'handlers.file.path' => 'string',
             'handlers.file.prefix' => 'string',
-            'handlers.file.enable' => 'boolean',
-            'handlers.file.class' => 'string',
             'handlers.file.level' => 'string',
+            'handlers.null' => 'array',
+        ];
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getDefault(): array
+    {
+        return [
+        'level' => LogLevel::DEBUG,
+        'driver' => 'null',
+        'handlers' => [
+            'file' => [
+                'path' => 'logs',
+                'prefix' => 'app.',
+                'level' => LogLevel::DEBUG,
+            ],
+            'null' => []
+
+        ]
         ];
     }
 }

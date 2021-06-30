@@ -69,11 +69,11 @@ class FileHandler extends AbstractLoggerHandler
      * Create new File Handler
      * {@inheritdoc}
      */
-    public function __construct(Configuration $config)
+    public function __construct(?Configuration $config = null)
     {
         parent::__construct($config);
         $this->path = Path::normalizePathDS(
-            $config->get('handlers.file.path'),
+            $this->config->get('handlers.file.path'),
             true
         );
     }

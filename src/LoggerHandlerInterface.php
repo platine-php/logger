@@ -55,9 +55,9 @@ interface LoggerHandlerInterface
 
     /**
      * Create new instance
-     * @param Configuration $config
+     * @param Configuration|null $config
      */
-    public function __construct(Configuration $config);
+    public function __construct(?Configuration $config = null);
 
     /**
      * Save log message to the handler
