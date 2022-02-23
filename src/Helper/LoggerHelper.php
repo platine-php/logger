@@ -70,9 +70,11 @@ class LoggerHelper
         ];
 
         foreach ($ipServerVars as $var) {
-            $value = filter_input(INPUT_SERVER, $var);
-            if (!empty($value)) {
-                $ip = $value;
+            //https://bugs.php.net/bug.php?id=49184 can
+            // not use filter_input(INPUT_SERVER, $var);
+
+            if (isset($_SERVER[$var])) {
+                $ip = $_SERVER[$var];
                 break;
             }
         }
