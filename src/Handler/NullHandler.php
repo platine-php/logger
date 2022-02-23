@@ -52,7 +52,6 @@ namespace Platine\Logger\Handler;
  */
 class NullHandler extends AbstractLoggerHandler
 {
-
     /**
      * {@inheritdoc}
      */

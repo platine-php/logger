@@ -46,6 +46,7 @@ declare(strict_types=1);
 
 namespace Platine\Logger\Formatter;
 
+use Platine\Logger\Helper\LoggerHelper;
 use Throwable;
 
 /**
@@ -54,7 +55,6 @@ use Throwable;
  */
 class DefaultFormatter extends AbstractFormatter
 {
-
     /**
      * {@inheritdoc}
      * YYYY-mm-dd HH:ii:ss.micro  [log level]  [channel]  [pid:##]
@@ -78,10 +78,12 @@ class DefaultFormatter extends AbstractFormatter
         $msg = $this->interpolate($message, $context);
         $logLevel = strtoupper($level);
         $pid = getmygid();
+        $ip = LoggerHelper::getClientIpAddress();
 
         return
                 $this->getLogTime() . $this->tab .
                 '[' . $logLevel . ']' . $this->tab .
+                '[' . $ip . ']' . $this->tab .
                 '[' . $channel . ']' . $this->tab .
                 '[pid:' . $pid . ']' . $this->tab .
                 str_replace(PHP_EOL, '   ', trim($msg)) .

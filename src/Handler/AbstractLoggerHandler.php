@@ -55,7 +55,6 @@ use Platine\Logger\LoggerHandlerInterface;
  */
 abstract class AbstractLoggerHandler implements LoggerHandlerInterface
 {
-
     /**
      * The configuration to use
      * @var Configuration

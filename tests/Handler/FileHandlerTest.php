@@ -21,7 +21,6 @@ use RuntimeException;
  */
 class FileHandlerTest extends PlatineTestCase
 {
-
     protected $vfsRoot;
     protected $vfsLogPath;
     protected $logFilename;

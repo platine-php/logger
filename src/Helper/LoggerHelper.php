@@ -29,11 +29,11 @@
  */
 
 /**
- *  @file LoggerFormatterInterface.php
+ *  @file LoggerHelper.php
  *
- *  The Logger formatter interface
+ *  The Logger Helper class.
  *
- *  @package    Platine\Logger
+ *  @package    Platine\Logger\Helper
  *  @author Platine Developers Team
  *  @copyright  Copyright (c) 2020
  *  @license    http://opensource.org/licenses/MIT  MIT License
@@ -44,27 +44,44 @@
 
 declare(strict_types=1);
 
-namespace Platine\Logger;
+namespace Platine\Logger\Helper;
 
 /**
- * Class LoggerFormatterInterface
- * @package Platine\Logger
+ * @class LoggerHelper
+ * @package Platine\Logger\Helper
  */
-interface LoggerFormatterInterface
+class LoggerHelper
 {
     /**
-     * Format the log line.
-     *
-     * @param  string $level the log level
-     * @param  string $message the message to log
-     * @param  array<string, mixed>  $context
-     * @param  string $channel the channel to be used
+     * Return the user ip address
      * @return string
      */
-    public function format(
-        string $level,
-        string $message,
-        array $context,
-        string $channel
-    ): string;
+    public static function getClientIpAddress(): string
+    {
+        $ip = '127.0.0.1';
+
+        $ipServerVars = [
+            'REMOTE_ADDR',
+            'HTTP_CLIENT_IP',
+            'HTTP_X_FORWARDED_FOR',
+            'HTTP_X_FORWARDED',
+            'HTTP_FORWARDED_FOR',
+            'HTTP_FORWARDED'
+        ];
+
+        foreach ($ipServerVars as $var) {
+            $value = filter_input(INPUT_SERVER, $var);
+            if (!empty($value)) {
+                $ip = $value;
+                break;
+            }
+        }
+
+        // Strip any secondary IP etc from the IP address
+        if (strpos($ip, ',') > 0) {
+            $ip = substr($ip, 0, strpos($ip, ','));
+        }
+
+        return $ip;
+    }
 }

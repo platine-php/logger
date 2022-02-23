@@ -52,7 +52,6 @@ namespace Platine\Logger;
  */
 interface LoggerHandlerInterface
 {
-
     /**
      * Create new instance
      * @param Configuration|null $config

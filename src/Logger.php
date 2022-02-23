@@ -56,7 +56,6 @@ use Platine\Logger\Handler\NullHandler;
  */
 class Logger implements LoggerInterface
 {
-
     /**
      * Special minimum log level which will not log any log levels.
      */

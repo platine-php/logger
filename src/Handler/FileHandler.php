@@ -58,7 +58,6 @@ use Throwable;
  */
 class FileHandler extends AbstractLoggerHandler
 {
-
     /**
      * The log directory path
      * @var string

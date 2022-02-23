@@ -48,7 +48,6 @@ namespace Platine\Logger;
 
 interface LoggerInterface
 {
-
     /**
      * System is unusable.
      *
