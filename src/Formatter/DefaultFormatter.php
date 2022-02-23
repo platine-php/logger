@@ -82,8 +82,8 @@ class DefaultFormatter extends AbstractFormatter
 
         return
                 $this->getLogTime() . $this->tab .
-                '[' . $logLevel . ']' . $this->tab .
                 '[' . $ip . ']' . $this->tab .
+                '[' . $logLevel . ']' . $this->tab .
                 '[' . $channel . ']' . $this->tab .
                 '[pid:' . $pid . ']' . $this->tab .
                 str_replace(PHP_EOL, '   ', trim($msg)) .
