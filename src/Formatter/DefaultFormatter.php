@@ -46,7 +46,7 @@ declare(strict_types=1);
 
 namespace Platine\Logger\Formatter;
 
-use Platine\Logger\Helper\LoggerHelper;
+use Platine\Stdlib\Helper\Str;
 use Throwable;
 
 /**
@@ -78,7 +78,7 @@ class DefaultFormatter extends AbstractFormatter
         $msg = $this->interpolate($message, $context);
         $logLevel = strtoupper($level);
         $pid = getmygid();
-        $ip = LoggerHelper::getClientIpAddress();
+        $ip = Str::ip();
 
         return
                 $this->getLogTime() . $this->tab .
