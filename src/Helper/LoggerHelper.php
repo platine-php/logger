@@ -29,11 +29,11 @@
  */
 
 /**
- *  @file DefaultFormatter.php
+ *  @file LoggerHelper.php
  *
- *  The default logger formatter class
+ *  The Logger Helper class.
  *
- *  @package    Platine\Logger\Formatter
+ *  @package    Platine\Logger\Helper
  *  @author Platine Developers Team
  *  @copyright  Copyright (c) 2020
  *  @license    http://opensource.org/licenses/MIT  MIT License
@@ -44,49 +44,46 @@
 
 declare(strict_types=1);
 
-namespace Platine\Logger\Formatter;
-
-use Platine\Stdlib\Helper\Str;
-use Throwable;
+namespace Platine\Logger\Helper;
 
 /**
- * Class DefaultFormatter
- * @package Platine\Logger\Formatter
+ * @class LoggerHelper
+ * @package Platine\Logger\Helper
  */
-class DefaultFormatter extends AbstractFormatter
+class LoggerHelper
 {
     /**
-     * {@inheritdoc}
-     * YYYY-mm-dd HH:ii:ss.micro  [log level]  [channel]  [pid:##]
-     *  Log message content  {"Optional":"Exception Data"}
+     * Return the user ip address
+     * @return string
      */
-    public function format(
-        string $level,
-        string $message,
-        array $context,
-        string $channel
-    ): string {
-        $exception = null;
-        if (isset($context['exception']) && $context['exception'] instanceof Throwable) {
-            $exception = (string) print_r(
-                $this->getExceptionData($context['exception']),
-                true
-            );
-            unset($context['exception']);
+    public static function getClientIpAddress(): string
+    {
+        $ip = '127.0.0.1';
+
+        $ipServerVars = [
+            'REMOTE_ADDR',
+            'HTTP_CLIENT_IP',
+            'HTTP_X_FORWARDED_FOR',
+            'HTTP_X_FORWARDED',
+            'HTTP_FORWARDED_FOR',
+            'HTTP_FORWARDED'
+        ];
+
+        foreach ($ipServerVars as $var) {
+            //https://bugs.php.net/bug.php?id=49184 can
+            // not use filter_input(INPUT_SERVER, $var);
+
+            if (isset($_SERVER[$var])) {
+                $ip = $_SERVER[$var];
+                break;
+            }
         }
 
-        $msg = $this->interpolate($message, $context);
-        $logLevel = strtoupper($level);
-        $pid = getmygid();
-        $ip = Str::ip();
+        // Strip any secondary IP etc from the IP address
+        if (strpos($ip, ',') > 0) {
+            $ip = substr($ip, 0, strpos($ip, ','));
+        }
 
-        return
-                $this->getLogTime() . $this->tab .
-                '[' . $ip . ']' . $this->tab .
-                '[' . $logLevel . ']' . $this->tab .
-                '[' . $channel . ']' . $this->tab .
-                str_replace(PHP_EOL, '   ', trim($msg)) .
-                ($exception ? ' ' . str_replace(PHP_EOL, '   ', $exception) : '')
-                    . PHP_EOL;
+        return $ip;
     }
 }
