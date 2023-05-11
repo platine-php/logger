@@ -119,7 +119,7 @@ class Logger implements LoggerInterface
     ) {
         $this->config = $config ?? new Configuration([]);
 
-        $this->formatter = $formatter ?? new DefaultFormatter();
+        $this->formatter = $formatter ?? new DefaultFormatter($config);
         $level = $this->config->has('level')
                 ? $this->config->get('level')
                 : LogLevel::DEBUG;

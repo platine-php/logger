@@ -61,6 +61,8 @@ class Configuration extends AbstractConfiguration
     {
         return [
             'level' => 'string',
+            'driver' => 'string',
+            'timestamp' => 'boolean',
             'handlers' => 'array',
             'handlers.file' => 'array',
             'handlers.file.path' => 'string',
@@ -78,6 +80,7 @@ class Configuration extends AbstractConfiguration
         return [
         'level' => LogLevel::DEBUG,
         'driver' => 'null',
+        'timestamp' => false,
         'handlers' => [
             'file' => [
                 'path' => 'logs',

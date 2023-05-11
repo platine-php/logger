@@ -47,6 +47,7 @@ declare(strict_types=1);
 namespace Platine\Logger\Formatter;
 
 use DateTimeImmutable;
+use Platine\Logger\Configuration;
 use Platine\Logger\LoggerFormatterInterface;
 use Platine\Stdlib\Helper\Str;
 use Throwable;
@@ -62,6 +63,20 @@ abstract class AbstractFormatter implements LoggerFormatterInterface
      * @var string
      */
     protected string $tab = "\t";
+    
+    /**
+     * The configuration to use
+     * @var Configuration
+     */
+    protected Configuration $config;
+    
+    /**
+     * Create new instance
+     * @param Configuration $config the configuration to use
+     */
+    public function __construct(Configuration $config) {
+        $this->config = $config;
+    }
 
     /**
      * Get Exception information data
@@ -126,6 +141,12 @@ abstract class AbstractFormatter implements LoggerFormatterInterface
      */
     protected function getLogTime(): string
     {
-        return (new DateTimeImmutable('now'))->format('Y-m-d H:i:s.u');
+        $format = 'Y-m-d H:i:s.u';
+        $useTimestamp = $this->config->get('timestamp', false);
+        if($useTimestamp === false){
+            $format = 'H:i:s.u';
+        }
+        
+        return (new DateTimeImmutable('now'))->format($format);
     }
 }
