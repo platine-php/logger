@@ -77,7 +77,7 @@ class DefaultFormatter extends AbstractFormatter
 
         $msg = $this->interpolate($message, $context);
         $logLevel = strtoupper($level);
-        $useIp = $this->config->get('file.ip_addr', false);
+        $useIp = $this->config->get('handlers.file.ip_addr', false);
         $ipStr = '';
         if($useIp){
             $ip = Str::ip();
