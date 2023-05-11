@@ -66,6 +66,7 @@ class Configuration extends AbstractConfiguration
             'handlers' => 'array',
             'handlers.file' => 'array',
             'handlers.file.path' => 'string',
+            'handlers.file.ip_addr' => 'boolean',
             'handlers.file.prefix' => 'string',
             'handlers.file.level' => 'string',
             'handlers.null' => 'array',
@@ -85,6 +86,7 @@ class Configuration extends AbstractConfiguration
             'file' => [
                 'path' => 'logs',
                 'prefix' => 'app.',
+                'ip_addr' => false,
                 'level' => LogLevel::DEBUG,
             ],
             'null' => []

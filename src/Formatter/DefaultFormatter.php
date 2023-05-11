@@ -77,12 +77,16 @@ class DefaultFormatter extends AbstractFormatter
 
         $msg = $this->interpolate($message, $context);
         $logLevel = strtoupper($level);
-        $pid = getmygid();
-        $ip = Str::ip();
+        $useIp = $this->config->get('file.ip_addr', false);
+        $ipStr = '';
+        if($useIp){
+            $ip = Str::ip();
+            $ipStr = '[' . $ip . ']' . $this->tab;
+        }
 
         return
                 $this->getLogTime() . $this->tab .
-                '[' . $ip . ']' . $this->tab .
+                $ipStr .
                 '[' . $logLevel . ']' . $this->tab .
                 '[' . $channel . ']' . $this->tab .
                 str_replace(PHP_EOL, '   ', trim($msg)) .
