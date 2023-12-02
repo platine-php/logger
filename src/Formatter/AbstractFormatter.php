@@ -63,18 +63,19 @@ abstract class AbstractFormatter implements LoggerFormatterInterface
      * @var string
      */
     protected string $tab = "\t";
-    
+
     /**
      * The configuration to use
      * @var Configuration
      */
     protected Configuration $config;
-    
+
     /**
      * Create new instance
      * @param Configuration $config the configuration to use
      */
-    public function __construct(Configuration $config) {
+    public function __construct(Configuration $config)
+    {
         $this->config = $config;
     }
 
@@ -143,10 +144,10 @@ abstract class AbstractFormatter implements LoggerFormatterInterface
     {
         $format = 'Y-m-d H:i:s.u';
         $useTimestamp = $this->config->get('timestamp', false);
-        if($useTimestamp === false){
+        if ($useTimestamp === false) {
             $format = 'H:i:s.u';
         }
-        
+
         return (new DateTimeImmutable('now'))->format($format);
     }
 }

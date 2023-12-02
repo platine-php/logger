@@ -79,7 +79,7 @@ class DefaultFormatter extends AbstractFormatter
         $logLevel = strtoupper($level);
         $useIp = $this->config->get('handlers.file.ip_addr', false);
         $ipStr = '';
-        if($useIp){
+        if ($useIp) {
             $ip = Str::ip();
             $ipStr = '[' . $ip . ']' . $this->tab;
         }
