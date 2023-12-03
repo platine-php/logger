@@ -48,7 +48,6 @@ namespace Platine\Logger;
 
 use Exception;
 use Platine\Logger\Formatter\DefaultFormatter;
-use Platine\Logger\Handler\NullHandler;
 
 /**
  * Class Logger
@@ -119,7 +118,7 @@ class Logger implements LoggerInterface
     ) {
         $this->config = $config ?? new Configuration([]);
 
-        $this->formatter = $formatter ?? new DefaultFormatter($config);
+        $this->formatter = $formatter ?? new DefaultFormatter($this->config);
         $level = $this->config->has('level')
                 ? $this->config->get('level')
                 : LogLevel::DEBUG;

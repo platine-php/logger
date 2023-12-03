@@ -52,9 +52,17 @@ class FileHandlerTest extends PlatineTestCase
         ]);
         $l = new FileHandler($config);
 
+        $filePath = implode(
+            DIRECTORY_SEPARATOR,
+            [
+                'vfs://root',
+                'logs',
+            ]
+        ) . DIRECTORY_SEPARATOR;
+
         $lpr = $this->getPrivateProtectedAttribute(FileHandler::class, 'path');
 
-        $this->assertEquals($path . DIRECTORY_SEPARATOR, $lpr->getValue($l));
+        $this->assertEquals($filePath, $lpr->getValue($l));
     }
 
 

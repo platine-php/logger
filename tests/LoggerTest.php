@@ -141,7 +141,8 @@ class LoggerTest extends PlatineTestCase
             'handlers' => [
                 'file' => [
                     'path' => $this->vfsLogPath->url(),
-                    'prefix' => 'log-'
+                    'prefix' => 'log-',
+                    'ip_addr' => false,
                 ]
             ]
         ]);
@@ -162,7 +163,8 @@ class LoggerTest extends PlatineTestCase
             'handlers' => [
                 'file' => [
                     'path' => $this->vfsLogPath->url(),
-                    'prefix' => 'log-'
+                    'prefix' => 'log-',
+                    'ip_addr' => false,
                 ]
             ]
         ]);
@@ -183,7 +185,8 @@ class LoggerTest extends PlatineTestCase
             'handlers' => [
                 'file' => [
                     'path' => $this->vfsLogPath->url(),
-                    'prefix' => 'log-'
+                    'prefix' => 'log-',
+                    'ip_addr' => false,
                 ]
             ]
         ]);
@@ -204,7 +207,8 @@ class LoggerTest extends PlatineTestCase
             'handlers' => [
                 'file' => [
                     'path' => $this->vfsLogPath->url(),
-                    'prefix' => 'log-'
+                    'prefix' => 'log-',
+                    'ip_addr' => false,
                 ]
             ]
         ]);
@@ -225,7 +229,8 @@ class LoggerTest extends PlatineTestCase
             'handlers' => [
                 'file' => [
                     'path' => $this->vfsLogPath->url(),
-                    'prefix' => 'log-'
+                    'prefix' => 'log-',
+                    'ip_addr' => false,
                 ]
             ]
         ]);
@@ -246,7 +251,8 @@ class LoggerTest extends PlatineTestCase
             'handlers' => [
                 'file' => [
                     'path' => $this->vfsLogPath->url(),
-                    'prefix' => 'log-'
+                    'prefix' => 'log-',
+                    'ip_addr' => false,
                 ]
             ]
         ]);
@@ -267,7 +273,8 @@ class LoggerTest extends PlatineTestCase
             'handlers' => [
                 'file' => [
                     'path' => $this->vfsLogPath->url(),
-                    'prefix' => 'log-'
+                    'prefix' => 'log-',
+                    'ip_addr' => false,
                 ]
             ]
         ]);
@@ -288,7 +295,8 @@ class LoggerTest extends PlatineTestCase
             'handlers' => [
                 'file' => [
                     'path' => $this->vfsLogPath->url(),
-                    'prefix' => 'log-'
+                    'prefix' => 'log-',
+                    'ip_addr' => false,
                 ]
             ]
         ]);
@@ -305,13 +313,13 @@ class LoggerTest extends PlatineTestCase
     {
         $logLine = 'Division by zero';
         $expectedLogLine = 'Division by zero';
-        $path = $this->vfsLogPath->url();
         $config = new Configuration([
             'level' => LogLevel::DEBUG,
             'handlers' => [
                 'file' => [
                     'path' => $this->vfsLogPath->url(),
-                    'prefix' => 'log-'
+                    'prefix' => 'log-',
+                    'ip_addr' => false,
                 ]
             ]
         ]);
@@ -338,17 +346,19 @@ class LoggerTest extends PlatineTestCase
         $time = strtotime('2021-01-20T17:39:09+00:00');
         $logLine = 'Debug message {foo} {date} {object}';
         $expectedLogLine = 'Debug message bar DateTime { 2021-01-20T17:39:09+00:00 } stdClass';
-        $formatter = new DefaultFormatter();
         $path = $this->vfsLogPath->url();
         $config = new Configuration([
             'level' => LogLevel::DEBUG,
             'handlers' => [
                 'file' => [
                     'path' => $path,
-                    'prefix' => 'log-'
+                    'prefix' => 'log-',
+                    'ip_addr' => false,
                 ]
             ]
         ]);
+        $formatter = new DefaultFormatter($config);
+
 
         $l = new Logger($config, $formatter);
         $l->addHandler('file', new FileHandler($config));
