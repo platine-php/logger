@@ -53,7 +53,7 @@ use RuntimeException;
 use Throwable;
 
 /**
- * Class FileHandler
+ * @class FileHandler
  * @package Platine\Logger\Handler
  */
 class FileHandler extends AbstractLoggerHandler

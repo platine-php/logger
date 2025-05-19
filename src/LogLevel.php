@@ -47,7 +47,7 @@ declare(strict_types=1);
 namespace Platine\Logger;
 
 /**
- * Class LogLevel
+ * @class LogLevel
  * @package Platine\Logger
  */
 class LogLevel

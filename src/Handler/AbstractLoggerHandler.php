@@ -50,7 +50,7 @@ use Platine\Logger\Configuration;
 use Platine\Logger\LoggerHandlerInterface;
 
 /**
- * Class AbstractLoggerHandler
+ * @class AbstractLoggerHandler
  * @package Platine\Logger\Handler
  */
 abstract class AbstractLoggerHandler implements LoggerHandlerInterface

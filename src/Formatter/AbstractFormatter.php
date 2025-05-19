@@ -53,7 +53,7 @@ use Platine\Stdlib\Helper\Str;
 use Throwable;
 
 /**
- * Class AbstractFormatter
+ * @class AbstractFormatter
  * @package Platine\Logger\Formatter
  */
 abstract class AbstractFormatter implements LoggerFormatterInterface
@@ -65,24 +65,17 @@ abstract class AbstractFormatter implements LoggerFormatterInterface
     protected string $tab = "\t";
 
     /**
-     * The configuration to use
-     * @var Configuration
-     */
-    protected Configuration $config;
-
-    /**
      * Create new instance
      * @param Configuration $config the configuration to use
      */
-    public function __construct(Configuration $config)
+    public function __construct(protected Configuration $config)
     {
-        $this->config = $config;
     }
 
     /**
      * Get Exception information data
      * @param  Throwable $exception
-     * @return array<string, mixed>        the exception data
+     * @return array<string, mixed> the exception data
      */
     protected function getExceptionData(Throwable $exception): array
     {
@@ -102,7 +95,7 @@ abstract class AbstractFormatter implements LoggerFormatterInterface
                 $trace['file'] ?? '',
                 $trace['class'] ?? '',
                 $trace['type'] ?? '',
-                $trace['function'] ?? '',
+                $trace['function'],
                 isset($trace['args']) ? '...' : '',
                 $trace['line'] ?? ''
             ) . "\n";
@@ -143,7 +136,7 @@ abstract class AbstractFormatter implements LoggerFormatterInterface
     protected function getLogTime(): string
     {
         $format = 'Y-m-d H:i:s.u';
-        $useTimestamp = $this->config->get('timestamp', false);
+        $useTimestamp = $this->config->get('timestamp');
         if ($useTimestamp === false) {
             $format = 'H:i:s.u';
         }

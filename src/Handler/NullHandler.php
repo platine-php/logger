@@ -47,7 +47,7 @@ declare(strict_types=1);
 namespace Platine\Logger\Handler;
 
 /**
- * Class NullHandler
+ * @class NullHandler
  * @package Platine\Logger\Handler
  */
 class NullHandler extends AbstractLoggerHandler

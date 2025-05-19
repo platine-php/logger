@@ -164,7 +164,7 @@ class LoggerTest extends PlatineTestCase
                 'file' => [
                     'path' => $this->vfsLogPath->url(),
                     'prefix' => 'log-',
-                    'ip_addr' => false,
+                    'ip_addr' => true,
                 ]
             ]
         ]);

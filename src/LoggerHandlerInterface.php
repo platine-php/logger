@@ -47,7 +47,7 @@ declare(strict_types=1);
 namespace Platine\Logger;
 
 /**
- * Class LoggerHandlerInterface
+ * @class LoggerHandlerInterface
  * @package Platine\Logger
  */
 interface LoggerHandlerInterface

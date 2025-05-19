@@ -50,7 +50,7 @@ use Platine\Stdlib\Helper\Str;
 use Throwable;
 
 /**
- * Class DefaultFormatter
+ * @class DefaultFormatter
  * @package Platine\Logger\Formatter
  */
 class DefaultFormatter extends AbstractFormatter
@@ -77,15 +77,14 @@ class DefaultFormatter extends AbstractFormatter
 
         $msg = $this->interpolate($message, $context);
         $logLevel = strtoupper($level);
-        $useIp = $this->config->get('handlers.file.ip_addr', false);
+        $useIp = $this->config->get('handlers.file.ip_addr');
         $ipStr = '';
         if ($useIp) {
             $ip = Str::ip();
             $ipStr = '[' . $ip . ']' . $this->tab;
         }
 
-        return
-                $this->getLogTime() . $this->tab .
+        return  $this->getLogTime() . $this->tab .
                 $ipStr .
                 '[' . $logLevel . ']' . $this->tab .
                 '[' . $channel . ']' . $this->tab .

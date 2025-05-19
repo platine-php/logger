@@ -49,7 +49,7 @@ namespace Platine\Logger;
 use Platine\Stdlib\Config\AbstractConfiguration;
 
 /**
- * Class Configuration
+ * @class Configuration
  * @package Platine\Logger
  */
 class Configuration extends AbstractConfiguration
@@ -79,19 +79,19 @@ class Configuration extends AbstractConfiguration
     public function getDefault(): array
     {
         return [
-        'level' => LogLevel::DEBUG,
-        'driver' => 'null',
-        'timestamp' => false,
-        'handlers' => [
-            'file' => [
-                'path' => 'logs',
-                'prefix' => 'app.',
-                'ip_addr' => false,
-                'level' => LogLevel::DEBUG,
-            ],
-            'null' => []
+            'level' => LogLevel::DEBUG,
+            'driver' => 'null',
+            'timestamp' => false,
+            'handlers' => [
+                'file' => [
+                    'path' => 'logs',
+                    'prefix' => 'app.',
+                    'ip_addr' => false,
+                    'level' => LogLevel::DEBUG,
+                ],
+                'null' => []
 
-        ]
+            ]
         ];
     }
 }
